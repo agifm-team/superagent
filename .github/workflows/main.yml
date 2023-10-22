@@ -2,18 +2,18 @@ name: ci
 on:
   push:
     branches:
-      - 'docker'
+      - 'main'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
-	strategy:
-	  matrix:
-		include:
-		  - image: agifm/superagent-api
-		    dockerfile: libs/superagent/Dockerfile
-		  - image: agifm/superagent-ui
-		    dockerfile: libs/ui/Dockerfile
+    strategy:
+      matrix:
+        include:
+          - image: your-docker-registry/app1
+            dockerfile: app1/Dockerfile
+          - image: user/app2
+            dockerfile: your-docker-registry/app1
     steps:
       -
         name: Checkout
@@ -24,8 +24,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-	  - 
-	    name: Extract metadata (tags, labels) for Docker
+      - 
+        name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
@@ -33,9 +33,9 @@ jobs:
       -
         name: Build and push
         uses: docker/build-push-action@v4
-       	with:
+        with:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }
+          labels: ${{ steps.meta.outputs.labels }}
