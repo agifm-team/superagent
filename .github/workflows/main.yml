@@ -10,10 +10,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: your-docker-registry/app1
-            dockerfile: app1/Dockerfile
-          - image: user/app2
-            dockerfile: your-docker-registry/app1
+          - image: agifm/superagent-ui
+            dockerfile: libs/ui/Dockerfile
+          - image: agifm/superagent-api
+            dockerfile: libs/superagent/Dockerfile
     steps:
       -
         name: Checkout
