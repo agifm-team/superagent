@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useForm } from "react-hook-form"
 import { RxGithubLogo } from "react-icons/rx"
+import { SiAuth0 } from "react-icons/si"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -59,7 +60,7 @@ export default function IndexPage() {
 
   async function handleGithubLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
+      provider: "keycloak",
     })
 
     if (error) {
@@ -127,8 +128,8 @@ export default function IndexPage() {
         className="space-x-4"
         onClick={handleGithubLogin}
       >
-        <RxGithubLogo size={20} />
-        <p>Sign in with Github</p>
+        <SiAuth0 size={20} />
+        <p>Sign in</p>
       </Button>
       <Toaster />
     </section>
