@@ -61,6 +61,9 @@ export default function IndexPage() {
   async function handleGithubLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "keycloak",
+      options: {
+        scopes: 'openid',
+      }
     })
 
     if (error) {
