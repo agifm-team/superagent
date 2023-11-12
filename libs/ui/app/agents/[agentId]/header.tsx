@@ -33,15 +33,17 @@ const baseUrl =
 export default function Header({
   agent,
   profile,
+  email
 }: {
   agent: Agent
   profile: Profile
+  email: String
 }) {
   const api = new Api(profile.api_key)
   const router = useRouter()
   const { toast } = useToast()
   const [preferredBotName, setPreferredBotName] = useState("")
-  const [isUsernameAvailable, setUsernameAvailable] = useState(null)
+  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
   const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false)
 
@@ -72,13 +74,14 @@ export default function Header({
   }
 
   const handleDeploySubmit = async () => {
-    const deployUrl = `https://bots.multi.so/add/`
+    const deployUrl = `https://bots.multi.so/add`
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        username: email,
         bot_username: preferredBotName,
         api_key: profile.api_key,
         agent_name: agent.name,

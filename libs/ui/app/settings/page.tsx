@@ -16,5 +16,5 @@ export default async function Settings() {
     .eq("user_id", user?.id)
     .single()
 
-  return user ? <SettingsClientPage profile={profile} user={user} /> : null
+  return user ? <SettingsClientPage profile={profile} email={user.email} /> : null
 }
