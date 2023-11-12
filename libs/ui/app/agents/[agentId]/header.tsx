@@ -37,7 +37,7 @@ export default function Header({
 }: {
   agent: Agent
   profile: Profile
-  email: String
+  email: String | undefined
 }) {
   const api = new Api(profile.api_key)
   const router = useRouter()
