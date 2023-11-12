@@ -10,7 +10,7 @@ class Agent(BaseTool):
     def _run(self, input: str) -> str:
         agent_id = self.metadata["agentId"]
         api_key = self.metadata["apiKey"]
-        url = f"https://api.beta.superagent.sh/api/v1/agents/{agent_id}/invoke"
+        url = f"https://api.multi.so/api/v1/agents/{agent_id}/invoke"
         headers = {
             "content-type": "application/json",
             "authorization": f"Bearer {api_key}",
@@ -23,7 +23,7 @@ class Agent(BaseTool):
     async def _arun(self, input: str) -> str:
         agent_id = self.metadata["agentId"]
         api_key = self.metadata["apiKey"]
-        url = f"https://api.beta.superagent.sh/api/v1/agents/{agent_id}/invoke"
+        url = f"https://api.multi.so/api/v1/agents/{agent_id}/invoke"
         headers = {
             "content-type": "application/json",
             "authorization": f"Bearer {api_key}",

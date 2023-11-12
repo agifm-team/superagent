@@ -26,7 +26,7 @@ import { useToast } from "@/components/ui/use-toast"
 
 const baseUrl =
   process.env.NODE_ENV === "production"
-    ? "https://beta.superagent.sh"
+    ? "https://super.multi.so"
     : "http://localhost:3000"
 
 export default function Header({

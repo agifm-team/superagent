@@ -5,7 +5,7 @@ import {SuperAgentClient} from 'superagentai-js';
 import { ChakraProvider, Box, useDisclosure, Avatar, IconButton, Icon } from '@chakra-ui/react';
 import {TbX} from "react-icons/tb"
 
-const ENVIRONMENT = "https://api.beta.superagent.sh"
+const ENVIRONMENT = "https://api.multi.so"
 
 const styles = {
   container: {
@@ -83,7 +83,7 @@ function SuperagentWidget({ authorization, type }) {
             style={styles.iframe} 
             width="100%"
             height="100%"
-            src={`https://beta.superagent.sh/share/${authorization}`} 
+            src={`https://super.multi.so/share/${authorization}`} 
           />
         )}
       </div>
@@ -99,7 +99,7 @@ function SuperagentWidget({ authorization, type }) {
             boxShadow="md"
             width="55px"
             height="55px"
-            src={agent?.data?.avatarUrl || "https://beta.superagent.sh/logo.png"}
+            src={agent?.data?.avatarUrl || "https://super.multi.so/logo.png"}
             _hover={{transform: "scale(1.1)", transition: "0.2s all"}} 
             position="fixed"
             cursor="pointer"
@@ -116,7 +116,7 @@ function SuperagentWidget({ authorization, type }) {
             icon={<Icon as={TbX} fontSize="2xl" />}
             width="55px"
             height="55px"
-            src={agent?.data?.avatarUrl || "https://beta.superagent.sh/logo.png"}
+            src={agent?.data?.avatarUrl || "https://super.multi.so/logo.png"}
             _hover={{transform: "scale(1.1)", transition: "0.2s all"}} 
             position="fixed"
             cursor="pointer"
@@ -137,7 +137,7 @@ function SuperagentWidget({ authorization, type }) {
               style={styles.iframe} 
               width="100%"
               height="100%"
-              src={`https://beta.superagent.sh/share/${authorization}`} 
+              src={`https://super.multi.so/share/${authorization}`} 
             />
           </Box>
         )}
