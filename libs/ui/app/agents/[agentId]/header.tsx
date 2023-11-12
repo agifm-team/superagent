@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Separator } from "@radix-ui/react-separator"
 import { CodeBlock, dracula } from "react-code-blocks"
@@ -39,6 +40,64 @@ export default function Header({
   const api = new Api(profile.api_key)
   const router = useRouter()
   const { toast } = useToast()
+  const [preferredBotName, setPreferredBotName] = useState("")
+  const [isUsernameAvailable, setUsernameAvailable] = useState(null)
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
+  const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false)
+
+  const handleCheckUsernameAvailability = async () => {
+    setIsCheckingAvailability(true)
+    setAvailabilityCheckDone(false)
+    setUsernameAvailable(null) // Reset availability status
+
+    try {
+      const response = await fetch(
+        `https://matrix.multi.so/_matrix/client/v3/register/available?username=${preferredBotName}`
+      )
+
+      // Set availability based on response status
+      if (response.status === 200) {
+        setUsernameAvailable(true)
+      } else if (response.status === 400) {
+        setUsernameAvailable(false)
+      }
+    } catch (error) {
+      toast({
+        description: "An error occurred while checking username availability.",
+      })
+    } finally {
+      setIsCheckingAvailability(false)
+      setAvailabilityCheckDone(true)
+    }
+  }
+
+  const handleDeploySubmit = async () => {
+    const deployUrl = `https://bots.multi.so/add/`
+    const response = await fetch(deployUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        bot_username: preferredBotName,
+        api_key: profile.api_key,
+        agent_name: agent.name,
+        agent_desc: agent.description,
+        profile: agent.avatar,
+      }),
+    })
+
+    // Check response and show toast notification accordingly
+    if (response.ok) {
+      toast({
+        description: "Bot deployed successfully!",
+      })
+    } else {
+      toast({
+        description: "Failed to deploy bot. Please try again.",
+      })
+    }
+  }
 
   const handleDelete = async () => {
     await api.deleteAgentById(agent.id)
@@ -59,7 +118,7 @@ export default function Header({
   const embedCode = `<!-- This can be placed anywhere -->
 <div id="superagent-chat"></div>
 
-<!-- This should be placed before the 
+<!-- This should be placed before the
 closing </body> tag -->
 <script src="https://unpkg.com/superagent-chat-embed-v01/dist/web.js"></script>
 <script>
@@ -144,6 +203,51 @@ Superagent({
                   />
                 </div>
               </div>
+            </DialogContent>
+          </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="secondary">
+                Deploy
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Deploy your bot</DialogTitle>
+                <DialogDescription>
+                  Enter your preferred bot name and deploy it.
+                </DialogDescription>
+              </DialogHeader>
+              <Input
+                value={preferredBotName}
+                onChange={(e) => setPreferredBotName(e.target.value)}
+                placeholder="Preferred bot name"
+                disabled={isCheckingAvailability}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleCheckUsernameAvailability}
+                disabled={
+                  isCheckingAvailability || preferredBotName.trim() === ""
+                }
+              >
+                Check Availability
+              </Button>
+              {availabilityCheckDone &&
+                (isUsernameAvailable ? (
+                  <p>Username is available!</p>
+                ) : (
+                  <p>Username is not available. Try another one.</p>
+                ))}
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDeploySubmit}
+                disabled={!isUsernameAvailable}
+              >
+                Deploy
+              </Button>
             </DialogContent>
           </Dialog>
         </div>
