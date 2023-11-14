@@ -87,6 +87,7 @@ export default function Header({
         agent_name: agent.name,
         agent_desc: agent.description,
         profile: agent.avatar,
+        agent_id: agent.id
       }),
     })
 
