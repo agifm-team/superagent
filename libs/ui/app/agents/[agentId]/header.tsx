@@ -75,6 +75,7 @@ export default function Header({
 
   const handleDeploySubmit = async () => {
     const deployUrl = `https://bots.multi.so/add`
+    const profilePhoto = agent.avatar === null ? "" : agent.avatar;
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
@@ -86,7 +87,7 @@ export default function Header({
         api_key: profile.api_key,
         agent_name: agent.name,
         agent_desc: agent.description,
-        profile: agent.avatar,
+        profile: profilePhoto,
         agent_id: agent.id
       }),
     })
