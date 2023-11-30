@@ -11,9 +11,9 @@ jobs:
       matrix:
         include:
           - image: agifm/superagent-ui
-            dockerfile: libs/ui/Dockerfile
+            dockerfile: ./libs/ui/Dockerfile
           - image: agifm/superagent-api
-            dockerfile: libs/superagent/Dockerfile
+            dockerfile: ./libs/superagent/Dockerfile
     steps:
       -
         name: Checkout
