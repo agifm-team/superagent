@@ -1,6 +1,11 @@
 from pydantic import BaseModel
 
 
+class AlgoliaInput(BaseModel):
+    search_query: str
+    num_of_results: int
+
+
 class DatasourceInput(BaseModel):
     question: str
 
@@ -65,3 +70,11 @@ class TTS1InputModel(BaseModel):
 
 class TTS1Input(BaseModel):
     input: TTS1InputModel
+
+
+class HandOffInput(BaseModel):
+    reason: str
+
+
+class FunctionInput(BaseModel):
+    config: dict

@@ -122,6 +122,19 @@ export const siteConfig = {
       logo: "/azure-logo.png",
       options: [],
     },
+    {
+      disabled: true,
+      id: "HUGGINGFACE",
+      description: "Use Open Source models on HuggingFace.",
+      name: "HuggingFace",
+      logo: "/hf-logo.png",
+      options: [
+        {
+          value: "MISTRAL_7B_INSTRUCT_V01",
+          title: "mistral-7b-instruct-v0.1",
+        },
+      ],
+    },
   ],
   datasourceTypes: [
     {
@@ -143,6 +156,27 @@ export const siteConfig = {
     },
   ],
   toolTypes: [
+    {
+      value: "ALGOLIA",
+      title: "Algolia Index",
+      metadata: [
+        {
+          key: "index",
+          type: "input",
+          label: "Algolia Index",
+        },
+        {
+          key: "appId",
+          type: "input",
+          label: "Algolia App ID",
+        },
+        {
+          key: "apiKey",
+          type: "password",
+          label: "Algolia API Key",
+        },
+      ],
+    },
     {
       value: "BING_SEARCH",
       title: "Bing Search",
@@ -216,6 +250,33 @@ export const siteConfig = {
       value: "BROWSER",
       title: "Browser",
       metadata: [],
+    },
+    {
+      value: "HAND_OFF",
+      title: "Human hand-off (Alpha)",
+      metadata: [],
+    },
+    {
+      value: "FUNCTION",
+      title: "Function",
+      metadata: [
+        {
+          key: "functionName",
+          type: "input",
+          label: "Function name",
+          helpText: "Use lowercase letters, ex: get_article",
+        },
+        {
+          key: "args",
+          type: "json",
+          label: "Arguments",
+          helpText: "Add function arguments in the following format",
+          json: {
+            title: { type: "string", description: "Article title" },
+            url: { type: "string", description: "The url of the article" },
+          },
+        },
+      ],
     },
     {
       value: "OPENAPI",

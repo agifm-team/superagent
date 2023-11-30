@@ -7,6 +7,8 @@ import segment.analytics as analytics
 from decouple import config
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
+from langfuse import Langfuse
+from langfuse.model import CreateTrace
 from langsmith import Client
 
 from app.agents.base import AgentBase
@@ -48,7 +50,6 @@ from app.utils.streaming import CustomAsyncIteratorCallbackHandler
 SEGMENT_WRITE_KEY = config("SEGMENT_WRITE_KEY", None)
 
 router = APIRouter()
-langsmith_client = Client()
 analytics.write_key = SEGMENT_WRITE_KEY
 logging.basicConfig(level=logging.INFO)
 
@@ -172,18 +173,47 @@ async def invoke(
 ):
     """Endpoint for invoking an agent"""
 
+    langfuse_secret_key = config("LANGFUSE_SECRET_KEY", "")
+    langfuse_public_key = config("LANGFUSE_PUBLIC_KEY", "")
+    langfuse_host = config("LANGFUSE_HOST", "https://cloud.langfuse.com")
+    langfuse_handler = None
+    if langfuse_public_key and langfuse_secret_key:
+        langfuse = Langfuse(
+            public_key=langfuse_public_key,
+            secret_key=langfuse_secret_key,
+            host=langfuse_host,
+        )
+        trace = langfuse.trace(CreateTrace(id=agent_id, name="Assistant"))
+        langfuse_handler = trace.get_langchain_handler()
+
     async def send_message(
         agent: AgentBase, content: str, callback: CustomAsyncIteratorCallbackHandler
     ) -> AsyncIterable[str]:
         try:
             task = asyncio.ensure_future(
-                agent.acall(inputs={"input": content}, tags=[agent_id])
+                agent.acall(
+                    inputs={"input": content},
+                    tags=[agent_id],
+                    callbacks=[langfuse_handler] if langfuse_handler else None,
+                )
             )
 
             async for token in callback.aiter():
                 yield f"data: {token}\n\n"
 
             await task
+            result = task.result()
+            if "intermediate_steps" in result:
+                for step in result["intermediate_steps"]:
+                    agent_action_message_log = step[0]
+                    function = agent_action_message_log.tool
+                    args = agent_action_message_log.tool_input
+                    if function and args:
+                        yield (
+                            "event: function_call\n"
+                            f'data: {{"function": "{function}", '
+                            f'"args": {json.dumps(args)}}}\n\n'
+                        )
         except Exception as e:
             logging.error(f"Error in send_message: {e}")
         finally:
@@ -213,7 +243,11 @@ async def invoke(
         return StreamingResponse(generator, media_type="text/event-stream")
 
     logging.info("Streaming not enabled. Invoking agent synchronously...")
-    output = await agent.acall(inputs={"input": input}, tags=[agent_id])
+    output = await agent.acall(
+        inputs={"input": input},
+        tags=[agent_id],
+        callbacks=[langfuse_handler] if langfuse_handler else None,
+    )
     if output_schema:
         try:
             output = json.loads(output.get("output"))
@@ -443,11 +477,16 @@ async def remove_datasource(
 )
 async def list_runs(agent_id: str, api_user=Depends(get_current_api_user)):
     """Endpoint for listing agent runs"""
-    try:
-        output = langsmith_client.list_runs(
-            project_id=config("LANGSMITH_PROJECT_ID"),
-            filter=f"has(tags, '{agent_id}')",
-        )
-        return {"success": True, "data": output}
-    except Exception as e:
-        handle_exception(e)
+    is_langsmith_enabled = config("LANGCHAIN_TRACING_V2", False)
+    if is_langsmith_enabled == "True":
+        langsmith_client = Client()
+        try:
+            output = langsmith_client.list_runs(
+                project_id=config("LANGSMITH_PROJECT_ID"),
+                filter=f"has(tags, '{agent_id}')",
+            )
+            return {"success": True, "data": output}
+        except Exception as e:
+            handle_exception(e)
+
+    return {"success": False, "data": []}
