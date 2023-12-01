@@ -4,12 +4,13 @@ on:
     branches:
       - 'main'
 
+defaults:
+  run:
+    working-directory: libs/superagent
+
 jobs:
   docker:
     runs-on: ubuntu-latest
-    defaults:
-        run: 
-            working-directory: libs/superagent
     strategy:
       matrix:
         include:
