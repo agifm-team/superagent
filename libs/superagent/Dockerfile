@@ -25,8 +25,6 @@ COPY --from=builder /app/.venv /app/.venv
 
 COPY . ./
 
-RUN prisma migrate dev
-
 RUN prisma generate
 
 # Bind the port and refer to the app.py app
