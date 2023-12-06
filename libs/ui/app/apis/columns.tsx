@@ -148,7 +148,7 @@ export function EditTool({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-4"
+          className="w-full space-y-4 overflow-hidden"
         >
           <DialogHeader>
             <DialogTitle>Update API connection</DialogTitle>
@@ -206,7 +206,20 @@ export function EditTool({
                             className="rounded-lg text-xs"
                             extensions={[json()]}
                             theme={vscodeDark}
-                            onChange={field.onChange}
+                            onChange={(value) => {
+                              try {
+                                JSON.parse(value)
+                                field.onChange(value)
+                                form.clearErrors(
+                                  `metadata.${metadataField.key}`
+                                )
+                              } catch (error) {
+                                form.setError(`metadata.${metadataField.key}`, {
+                                  type: "manual",
+                                  message: "Invalid JSON",
+                                })
+                              }
+                            }}
                             value={field.value}
                           />
                         </div>
