@@ -82,7 +82,7 @@ export default function Header({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: email,
+        email_id: email,
         bot_username: preferredBotName,
         api_key: profile.api_key,
         agent_name: agent.name,
