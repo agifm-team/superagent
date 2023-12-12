@@ -44,6 +44,7 @@ from app.models.response import (
     AgentToolList as AgentToolListResponse,
 )
 from app.utils.api import get_current_api_user, handle_exception
+from app.utils.llm import LLM_PROVIDER_MAPPING
 from app.utils.prisma import prisma
 from app.utils.streaming import CustomAsyncIteratorCallbackHandler
 
@@ -66,7 +67,7 @@ async def create(body: AgentRequest, api_user=Depends(get_current_api_user)):
     try:
         if SEGMENT_WRITE_KEY:
             analytics.track(api_user.id, "Created Agent", {**body.dict()})
-        data = await prisma.agent.create(
+        agent = await prisma.agent.create(
             {**body.dict(), "apiUserId": api_user.id},
             include={
                 "tools": {"include": {"tool": True}},
@@ -74,7 +75,16 @@ async def create(body: AgentRequest, api_user=Depends(get_current_api_user)):
                 "llms": {"include": {"llm": True}},
             },
         )
-        return {"success": True, "data": data}
+        provider = None
+        for key, models in LLM_PROVIDER_MAPPING.items():
+            if body.llmModel in models:
+                provider = key
+                break
+        llm = await prisma.llm.find_first(
+            where={"provider": provider, "apiUserId": api_user.id}
+        )
+        await prisma.agentllm.create({"agentId": agent.id, "llmId": llm.id})
+        return {"success": True, "data": agent}
     except Exception as e:
         handle_exception(e)
 
@@ -183,7 +193,15 @@ async def invoke(
             secret_key=langfuse_secret_key,
             host=langfuse_host,
         )
-        trace = langfuse.trace(CreateTrace(id=agent_id, name="Assistant"))
+        session_id = f"{agent_id}-{body.sessionId}" if body.sessionId else f"{agent_id}"
+        trace = langfuse.trace(
+            CreateTrace(
+                id=session_id,
+                name="Assistant",
+                userId=api_user.id,
+                metadata={"agentId": agent_id},
+            )
+        )
         langfuse_handler = trace.get_langchain_handler()
 
     async def send_message(

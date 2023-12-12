@@ -1,3 +1,4 @@
+import datetime
 import json
 from typing import Any, List
 
@@ -53,7 +54,10 @@ class LangchainAgent(AgentBase):
                 else StructuredDatasourceTool
             )
             metadata = (
-                {"datasource_id": agent_datasource.datasource.id, "query_type": "all"}
+                {
+                    "datasource_id": agent_datasource.datasource.id,
+                    "query_type": "document",
+                }
                 if tool_type == DatasourceTool
                 else {"datasource": agent_datasource.datasource}
             )
@@ -122,6 +126,8 @@ class LangchainAgent(AgentBase):
                     "No other characters allowed.\n\n"
                     "Here is the output schema:\n"
                     f"{self.output_schema}"
+                    "\n\nCurrent date: "
+                    f"{datetime.datetime.now().strftime('%Y-%m-%d')}"
                 )
             else:
                 content = (
@@ -130,9 +136,12 @@ class LangchainAgent(AgentBase):
                     "No other characters allowed.\n\n"
                     "Here is the output schema:\n"
                     f"{self.output_schema}"
+                    "\n\nCurrent date: "
+                    f"{datetime.datetime.now().strftime('%Y-%m-%d')}"
                 )
         else:
             content = agent.prompt or DEFAULT_PROMPT
+            content = f"{content}" f"\n\n{datetime.datetime.now().strftime('%Y-%m-%d')}"
         return SystemMessage(content=content)
 
     async def _get_memory(self) -> List:
