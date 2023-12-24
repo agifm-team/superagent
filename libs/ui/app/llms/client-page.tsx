@@ -184,6 +184,42 @@ export default function LLMClientPage({
                                 />
                               </div>
                             )}
+                            {llm.id === "OPENROUTER" && (
+                              <div className="flex flex-col space-y-2">
+                                <FormField
+                                  control={form.control}
+                                  name="apiKey"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>API key</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Enter your api key"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="options.openai_api_base"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>OpenRouter api base</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Enter your openai api base"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                            )}
                             {llm.id === "AZURE_OPENAI" && (
                               <div className="flex flex-col space-y-2">
                                 <FormField

@@ -8,6 +8,8 @@ venv/
 /.vscode
 /.codesandbox
 
+#aws amplify
+install.cmd
 ## GUI IGNORE
 
 # dependencies

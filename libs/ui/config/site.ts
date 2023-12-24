@@ -124,6 +124,20 @@ export const siteConfig = {
       options: [],
     },
     {
+      disabled: false,
+      id: "OPENROUTER",
+      description:
+        "Use Azure OpenAI to power your assistants with the latest OpenAI models.",
+      name: "OpenRouter",
+      logo: "/azure-logo.png",
+      options: [
+        {
+          value : "MISTRAL_7B_INSTRUCT",
+          title: "mistral-7b-instruct"
+        }
+      ],
+    },
+    {
       disabled: true,
       id: "HUGGINGFACE",
       description: "Use Open Source models on HuggingFace.",

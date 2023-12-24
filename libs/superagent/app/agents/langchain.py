@@ -18,7 +18,7 @@ from app.datasource.types import (
 from app.models.tools import DatasourceInput
 from app.tools import TOOL_TYPE_MAPPING, create_pydantic_model_from_object, create_tool
 from app.tools.datasource import DatasourceTool, StructuredDatasourceTool
-from app.utils.llm import LLM_MAPPING
+from app.utils.llm import LLM_MAPPING, OPENROUTER_MAPPING
 from prisma.models import Agent, AgentDatasource, AgentLLM, AgentTool
 
 DEFAULT_PROMPT = (
@@ -102,6 +102,15 @@ class LangchainAgent(AgentBase):
         if agent_llm.llm.provider == "OPENAI":
             return ChatOpenAI(
                 model=LLM_MAPPING[model],
+                openai_api_key=agent_llm.llm.apiKey,
+                temperature=0,
+                streaming=self.enable_streaming,
+                callbacks=[self.callback] if self.enable_streaming else [],
+                **(agent_llm.llm.options if agent_llm.llm.options else {}),
+            )
+        if agent_llm.llm.provider == "OPENROUTER":
+            return ChatOpenAI(
+                model=OPENROUTER_MAPPING[model],
                 openai_api_key=agent_llm.llm.apiKey,
                 temperature=0,
                 streaming=self.enable_streaming,

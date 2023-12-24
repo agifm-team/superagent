@@ -7,6 +7,12 @@ LLM_MAPPING = {
     "GPT_4_1106_PREVIEW": "gpt-4-1106-preview",
 }
 
+OPENROUTER_MAPPING = {
+    "NOUS_CAPYBARA_7B" : "nousresearch/nous-capybara-7b",
+    "MISTRAL_7B_INSTRUCT" : "mistralai/mistral-7b-instruct",
+    "ZEPHYR-7B-BETA" : "huggingfaceh4/zephyr-7b-beta"
+}
+
 LLM_PROVIDER_MAPPING = {
     "OPENAI": [
         "GPT_3_5_TURBO_16K_0613",
@@ -15,5 +21,10 @@ LLM_PROVIDER_MAPPING = {
         "GPT_4_0613",
         "GPT_4_32K_0613",
         "GPT_4_1106_PREVIEW",
+    ],
+    "OPENROUTER" : [
+        "NOUS_CAPYBARA_7B",
+        "MISTRAL_7B_INSTRUCT",
+        "ZEPHYR-7B-BETA",
     ]
 }

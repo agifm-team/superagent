@@ -1,0 +1,5 @@
+-- AlterEnum
+ALTER TYPE "LLMModel" ADD VALUE 'NOUS_CAPYBARA_7B';
+
+-- AlterEnum
+ALTER TYPE "LLMProvider" ADD VALUE 'OPENROUTER';
