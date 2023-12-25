@@ -2,6 +2,7 @@ export enum LLMProvider {
   OPENAI,
   AZURE_OPENAI,
   HUGGINGFACE,
+  OPENROUTER
 }
 
 export enum LLMModel {
@@ -12,6 +13,11 @@ export enum LLMModel {
   GPT_4_32K_0613,
   GPT_4_1106_PREVIEW,
   MISTRAL_7B_INSTRUCT_V01,
+  NOUS_CAPYBARA_7B,
+  MISTRAL_7B_INSTRUCT,
+  ZEPHYR_7B_BETA,
+  OPENCHAT_7B,
+  MYTHOMIST_7B,
 }
 
 export enum DatasourceType {
