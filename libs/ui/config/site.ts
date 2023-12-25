@@ -50,7 +50,7 @@ export const siteConfig = {
     },
     {
       title: "Github",
-      href: "https://github.com/homanp/superagent",
+      href: "https://github.com/agifm-team/superagent",
       icon: RxGithubLogo,
     },
     {
