@@ -10,7 +10,9 @@ LLM_MAPPING = {
 OPENROUTER_MAPPING = {
     "NOUS_CAPYBARA_7B" : "nousresearch/nous-capybara-7b",
     "MISTRAL_7B_INSTRUCT" : "mistralai/mistral-7b-instruct",
-    "ZEPHYR-7B-BETA" : "huggingfaceh4/zephyr-7b-beta"
+    "ZEPHYR_7B_BETA" : "huggingfaceh4/zephyr-7b-beta",
+    "OPENCHAT_7B" : "openchat/openchat-7b",
+    "MYTHOMIST_7B" : "gryphe/mythomist-7b"
 }
 
 LLM_PROVIDER_MAPPING = {
@@ -25,6 +27,8 @@ LLM_PROVIDER_MAPPING = {
     "OPENROUTER" : [
         "NOUS_CAPYBARA_7B",
         "MISTRAL_7B_INSTRUCT",
-        "ZEPHYR-7B-BETA",
+        "ZEPHYR_7B_BETA",
+        "OPENCHAT_7B",
+        "MYTHOMIST_7B",
     ]
 }
