@@ -1383,6 +1383,7 @@ components:
         - OPENAI
         - AZURE_OPENAI
         - HUGGINGFACE
+        - OPENROUTER
       type: string
       description: An enumeration.
     ToolList:

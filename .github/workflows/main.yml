@@ -40,12 +40,12 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
-          context: "{{defaultContext}}:libs/ui"
           build-args: |
-            "NEXT_PUBLIC_SUPABASE_URL=${{ env.NEXT_PUBLIC_SUPABASE_URL }}"
-            "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
-            "NEXT_PUBLIC_SUPERAGENT_API_URL=${{ env.NEXT_PUBLIC_SUPERAGENT_API_URL }}"
-            "NEXT_PUBLIC_SUPABASE_STORAGE_NAME=${{ env.NEXT_PUBLIC_SUPABASE_STORAGE_NAME }}"
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_SUPERAGENT_API_URL=${{ secrets.NEXT_PUBLIC_SUPERAGENT_API_URL }}
+            NEXT_PUBLIC_SUPABASE_STORAGE_NAME=${{ secrets.NEXT_PUBLIC_SUPABASE_STORAGE_NAME }}
+          context: "{{defaultContext}}:libs/ui"
           file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}

@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  my_pony_client_container:
+    image: agifm/superagent-ui:dev
+    container_name: superagent_ui
+    ports:
+      - "3000:3000"
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.ui-add-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors 'self' *.agispace.co"
+      - "traefik.http.middlewares.ui-add-headers.headers.customresponseheaders.Permission-Policy=interest-cohort=()"
+      - "traefik.http.middlewares.ui-add-headers.headers.customresponseheaders.Strict-Transport-Security=max-age=31536000; includeSubDomains"
+      - "traefik.http.middlewares.ui-add-headers.headers.customresponseheaders.X-Content-Type-Options=nosniff"
+      - "traefik.http.middlewares.ui-add-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN"
+      - "traefik.http.middlewares.bots-add-headers.headers.customresponseheaders.accesscontrolalloworiginlist=https://*.agispace.co"
+      - "traefik.http.middlewares.ui-add-headers.headers.customresponseheaders.X-XSS-Protection=1; mode=block"
+      - "traefik.http.routers.ui.entrypoints=web-secure"
+      - "traefik.http.routers.ui.middlewares=ui-add-headers"
+      - "traefik.http.routers.ui.rule=Host(`super.agispace.co`)"
+      - "traefik.http.routers.ui.service=ui"
+      - "traefik.http.routers.ui.tls=true"
+      - "traefik.http.routers.ui.tls.certresolver=default"
+      - "traefik.http.services.ui.loadbalancer.server.port=3000"
+
+networks:
+  traefik:
+    external:
+      name: traefik
