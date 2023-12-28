@@ -134,6 +134,22 @@ export const siteConfig = {
         {
           value : "MISTRAL_7B_INSTRUCT",
           title: "mistral-7b-instruct"
+        },
+        {
+          value: "NOUS_CAPYBARA_7B",
+          title: "nous-capybara-7b",
+        },
+        {
+          value: "OPENCHAT_7B",
+          title: "openchat-7b",
+        },
+        {
+          value: "ZEPHYR_7B_BETA",
+          title: "zephyr-7b-beta",
+        },
+        {
+          value: "MYTHOMIST_7B",
+          title: "mythomist-7b",
         }
       ],
     },
@@ -147,7 +163,7 @@ export const siteConfig = {
         {
           value: "MISTRAL_7B_INSTRUCT_V01",
           title: "mistral-7b-instruct-v0.1",
-        },
+        }
       ],
     },
   ],
