@@ -111,6 +111,10 @@ class LangchainAgent(AgentBase):
         if agent_llm.llm.provider == "OPENROUTER":
             return ChatOpenAI(
                 model=OPENROUTER_MAPPING[model],
+                default_headers={
+                    "HTTP-Referer": "https://agispace.co", # Optional, for including your app on openrouter.ai rankings.
+                    "X-Title": "AgiSpace", #Optional. Shows in rankings on openrouter.ai.
+                },
                 openai_api_key=agent_llm.llm.apiKey,
                 temperature=0,
                 streaming=self.enable_streaming,
