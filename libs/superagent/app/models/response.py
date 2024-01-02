@@ -79,6 +79,7 @@ class Datasource(BaseModel):
 class DatasourceList(BaseModel):
     success: bool
     data: Optional[List[DatasourceModel]]
+    total_pages: int
 
 
 class Tool(BaseModel):
@@ -89,11 +90,13 @@ class Tool(BaseModel):
 class ToolList(BaseModel):
     success: bool
     data: Optional[List[ToolModel]]
+    total_pages: int
 
 
 class AgentList(BaseModel):
     success: bool
     data: Optional[List[AgentModel]]
+    total_pages: int
 
 
 class LLM(BaseModel):
@@ -119,6 +122,7 @@ class WorkflowStep(BaseModel):
 class WorkflowList(BaseModel):
     success: bool
     data: Optional[List[WorkflowModel]]
+    total_pages: int
 
 
 class WorkflowStepList(BaseModel):
