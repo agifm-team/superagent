@@ -79,6 +79,13 @@ enum DatasourceStatus {
   FAILED
 }
 
+enum VectorDbProvider {
+  PINECONE
+  ASTRA_DB
+  WEAVIATE
+  QDRANT
+}
+
 model ApiUser {
   id          String       @id @default(uuid())
   token       String?
@@ -90,6 +97,7 @@ model ApiUser {
   datasources Datasource[]
   tools       Tool[]
   workflows   Workflow[]
+  vectorDb    VectorDb[]
 }
 
 model Agent {
@@ -102,6 +110,7 @@ model Agent {
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   llms           AgentLLM[]
+  provider       String?
   llmModel       LLMModel          @default(GPT_3_5_TURBO_16K_0613)
   prompt         String?
   apiUserId      String
@@ -125,6 +134,8 @@ model Datasource {
   metadata    String?           @db.Text
   status      DatasourceStatus  @default(IN_PROGRESS)
   datasources AgentDatasource[]
+  vectorDb    VectorDb?         @relation(fields: [vectorDbId], references: [id])
+  vectorDbId  String?
 }
 
 model AgentDatasource {
@@ -209,4 +220,15 @@ model WorkflowStep {
   output     String?  @db.Text
   agentId    String
   agent      Agent    @relation(fields: [agentId], references: [id])
+}
+
+model VectorDb {
+  id          String           @id @default(uuid())
+  provider    VectorDbProvider @default(PINECONE)
+  options     Json
+  datasources Datasource[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  apiUserId   String
+  apiUser     ApiUser          @relation(fields: [apiUserId], references: [id])
 }
