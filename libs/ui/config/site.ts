@@ -133,9 +133,9 @@ export const siteConfig = {
       disabled: false,
       id: "OPENROUTER",
       description:
-        "Use Azure OpenAI to power your assistants with the latest OpenAI models.",
+        "Find the best models & prices for your prompts",
       name: "OpenRouter",
-      logo: "/azure-logo.png",
+      logo: "/openrouter-logo.png",
       options: [
         {
           value : "MISTRAL_7B_INSTRUCT",

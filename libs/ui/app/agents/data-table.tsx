@@ -153,7 +153,7 @@ export function DataTable<TData, TValue>({
       const { data: agent } = await api.createAgent({
         ...values,
         llmModel: siteConfig.defaultLLM,
-        provider: llms.provider
+        provider: llms[0].provider
       })
 
       for (const toolId of tools) {
