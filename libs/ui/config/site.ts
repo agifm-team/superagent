@@ -132,14 +132,13 @@ export const siteConfig = {
     {
       disabled: false,
       id: "OPENROUTER",
-      description:
-        "Find the best models & prices for your prompts",
+      description: "Find the best models & prices for your prompts",
       name: "OpenRouter",
       logo: "/openrouter-logo.png",
       options: [
         {
-          value : "MISTRAL_7B_INSTRUCT",
-          title: "mistral-7b-instruct"
+          value: "MISTRAL_7B_INSTRUCT",
+          title: "mistral-7b-instruct",
         },
         {
           value: "NOUS_CAPYBARA_7B",
@@ -156,7 +155,21 @@ export const siteConfig = {
         {
           value: "MYTHOMIST_7B",
           title: "mythomist-7b",
-        }
+        },
+        { value: "CINEMATIKA_7B", title: "cinematika-7b" },
+        { value: "RWKV_5_WORLD_3B", title: "rwkv-5-world-3b" },
+        { value: "RWKV__5_3B_AI_TOWN", title: "rwkv-5-3b-ai-town" },
+        { value: "BAGEL_34B", title: "bagel-34b" },
+        { value: "CHRONOS_HERMES_13B", title: "chronos-hermes-13b" },
+        { value: "PSYFIGHTER_13B_2", title: "psyfighter-13b-2" },
+        {value: "NOROMAID_MIXTRAL_8X7B_INSTRUCT",title: "noromaid-mixtral-8x7b-instruct" },
+        { value: "NOUS_HERMES_LLAMA2_13B", title: "nous-hermes-llama2-13b" },
+        { value: "CODELLAMA_34B_INSTRUCT", title: "codellama-34b-instruct" },
+        { value: "PHIND_CODELLAMA_34B", title: "phind-codellama-34b" },
+        { value: "NEURAL_CHAT_7B", title: "neural-chat-7b" },
+        { value: "LLAVA_13B", title: "llava-13b" },
+        { value: "NOUS_HERMES_2_VISION_7B", title: "nous-hermes-2-vision-7b" },
+        { value: "LLAMA_2_13B_CHAT", title: "llama-2-13b-chat" },
       ],
     },
     {
@@ -169,7 +182,7 @@ export const siteConfig = {
         {
           value: "MISTRAL_7B_INSTRUCT_V01",
           title: "mistral-7b-instruct-v0.1",
-        }
+        },
       ],
     },
   ],

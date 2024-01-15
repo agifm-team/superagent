@@ -1,0 +1,22 @@
+-- AlterEnum
+-- This migration adds more than one value to an enum.
+-- With PostgreSQL versions 11 and earlier, this is not possible
+-- in a single migration. This can be worked around by creating
+-- multiple migrations, each migration adding only one value to
+-- the enum.
+
+
+ALTER TYPE "LLMModel" ADD VALUE 'CINEMATIKA_7B';
+ALTER TYPE "LLMModel" ADD VALUE 'RWKV_5_WORLD_3B';
+ALTER TYPE "LLMModel" ADD VALUE 'RWKV__5_3B_AI_TOWN';
+ALTER TYPE "LLMModel" ADD VALUE 'BAGEL_34B';
+ALTER TYPE "LLMModel" ADD VALUE 'CHRONOS_HERMES_13B';
+ALTER TYPE "LLMModel" ADD VALUE 'PSYFIGHTER_13B_2';
+ALTER TYPE "LLMModel" ADD VALUE 'NOROMAID_MIXTRAL_8X7B_INSTRUCT';
+ALTER TYPE "LLMModel" ADD VALUE 'NOUS_HERMES_LLAMA2_13B';
+ALTER TYPE "LLMModel" ADD VALUE 'CODELLAMA_34B_INSTRUCT';
+ALTER TYPE "LLMModel" ADD VALUE 'PHIND_CODELLAMA_34B';
+ALTER TYPE "LLMModel" ADD VALUE 'NEURAL_CHAT_7B';
+ALTER TYPE "LLMModel" ADD VALUE 'LLAVA_13B';
+ALTER TYPE "LLMModel" ADD VALUE 'NOUS_HERMES_2_VISION_7B';
+ALTER TYPE "LLMModel" ADD VALUE 'LLAMA_2_13B_CHAT';
