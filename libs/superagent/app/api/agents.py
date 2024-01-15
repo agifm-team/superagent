@@ -232,7 +232,7 @@ async def invoke(
             )
 
             async for token in callback.aiter():
-                yield f"data: {token}\n\n"
+                yield ("event: message\n" f"data: {token}\n\n")
 
             await task
             result = task.result()
@@ -247,8 +247,9 @@ async def invoke(
                             f'data: {{"function": "{function}", '
                             f'"args": {json.dumps(args)}}}\n\n'
                         )
-        except Exception as e:
-            logging.error(f"Error in send_message: {e}")
+        except Exception as error:
+            logging.error(f"Error in send_message: {error}")
+            yield ("event: error\n" f"data: {error}\n\n")
         finally:
             callback.done.set()
 
