@@ -6,14 +6,13 @@ from typing import AsyncIterable
 import requests
 
 import segment.analytics as analytics
+from agentops.langchain_callback_handler import AsyncLangchainCallbackHandler
 from decouple import config
 from fastapi import APIRouter, Depends
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from langchain.agents import AgentExecutor
 from langchain.chains import LLMChain
 from langfuse import Langfuse
-from langfuse.model import CreateTrace
-from langsmith import Client
 
 from app.agents.base import AgentBase
 from app.models.request import (
@@ -31,6 +30,9 @@ from app.models.request import (
 from app.models.request import (
     AgentTool as AgentToolRequest,
 )
+from app.models.request import (
+    AgentUpdate as AgentUpdateRequest,
+)
 from app.models.response import (
     Agent as AgentResponse,
 )
@@ -43,14 +45,13 @@ from app.models.response import (
 from app.models.response import (
     AgentList as AgentListResponse,
 )
-from app.models.response import AgentRunList as AgentRunListResponse
 from app.models.response import (
     AgentToolList as AgentToolListResponse,
 )
 from app.utils.api import get_current_api_user, handle_exception
-from app.utils.llm import LLM_PROVIDER_MAPPING
+from app.utils.llm import LLM_MAPPING, LLM_PROVIDER_MAPPING
 from app.utils.prisma import prisma
-from app.utils.streaming import CustomAsyncIteratorCallbackHandler
+from app.utils.streaming import CostCalcAsyncHandler, CustomAsyncIteratorCallbackHandler
 
 SEGMENT_WRITE_KEY = config("SEGMENT_WRITE_KEY", None)
 
@@ -59,7 +60,6 @@ analytics.write_key = SEGMENT_WRITE_KEY
 logging.basicConfig(level=logging.INFO)
 
 
-# Agent endpoints
 @router.post(
     "/agents",
     name="create",
@@ -71,15 +71,32 @@ async def create(body: AgentRequest, api_user=Depends(get_current_api_user)):
     try:
         if SEGMENT_WRITE_KEY:
             analytics.track(api_user.id, "Created Agent", {**body.dict()})
+
         agent = await prisma.agent.create(
-            {**body.dict(), "apiUserId": api_user.id},
+            {
+                **body.dict(exclude={"llmProvider"}),
+                "apiUserId": api_user.id,
+            },
             include={
                 "tools": {"include": {"tool": True}},
                 "datasources": {"include": {"datasource": True}},
                 "llms": {"include": {"llm": True}},
             },
         )
-        provider = body.provider
+
+        provider = body.llmProvider
+        if body.llmModel:
+            for key, models in LLM_PROVIDER_MAPPING.items():
+                if body.llmModel in models:
+                    provider = key
+                    break
+
+        if not provider:
+            return JSONResponse(
+                status_code=400,
+                content={"message": "LLM provider not found"},
+            )
+
         llm = await prisma.llm.find_first(
             where={"provider": provider, "apiUserId": api_user.id}
         )
@@ -169,7 +186,7 @@ async def delete(agent_id: str, api_user=Depends(get_current_api_user)):
     response_model=AgentResponse,
 )
 async def update(
-    agent_id: str, body: AgentRequest, api_user=Depends(get_current_api_user)
+    agent_id: str, body: AgentUpdateRequest, api_user=Depends(get_current_api_user)
 ):
     """Endpoint for patching an agent"""
     try:
@@ -178,7 +195,7 @@ async def update(
         data = await prisma.agent.update(
             where={"id": agent_id},
             data={
-                **body.dict(),
+                **body.dict(exclude_unset=True),
                 "apiUserId": api_user.id,
             },
         )
@@ -196,12 +213,15 @@ async def update(
     name="invoke",
     description="Invoke an agent",
     response_model=AgentInvokeResponse,
+    openapi_extra={
+        "x-fern-sdk-group-name": "agent",
+        "x-fern-sdk-method-name": "invoke",
+    },
 )
 async def invoke(
     agent_id: str, body: AgentInvokeRequest, api_user=Depends(get_current_api_user)
 ):
     """Endpoint for invoking an agent"""
-
     langfuse_secret_key = config("LANGFUSE_SECRET_KEY", "")
     langfuse_public_key = config("LANGFUSE_PUBLIC_KEY", "")
     langfuse_host = config("LANGFUSE_HOST", "https://cloud.langfuse.com")
@@ -214,14 +234,75 @@ async def invoke(
         )
         session_id = f"{agent_id}-{body.sessionId}" if body.sessionId else f"{agent_id}"
         trace = langfuse.trace(
-            CreateTrace(
-                id=session_id,
-                name="Assistant",
-                userId=api_user.id,
-                metadata={"agentId": agent_id},
-            )
+            id=session_id,
+            name="Assistant",
+            tags=[agent_id],
+            metadata={"agentId": agent_id},
+            user_id=api_user.id,
         )
         langfuse_handler = trace.get_langchain_handler()
+
+    agentops_api_key = config("AGENTOPS_API_KEY", default=None)
+    agentops_org_key = config("AGENTOPS_ORG_KEY", default=None)
+
+    agentops_handler = None
+    if agentops_api_key and agentops_org_key:
+        agentops_handler = AsyncLangchainCallbackHandler(
+            api_key=agentops_api_key,
+            org_key=agentops_org_key,
+            tags=[agent_id, str(body.sessionId)],
+        )
+
+    agent_config = await prisma.agent.find_unique_or_raise(
+        where={"id": agent_id},
+        include={
+            "llms": {"include": {"llm": True}},
+            "datasources": {"include": {"datasource": {"include": {"vectorDb": True}}}},
+            "tools": {"include": {"tool": True}},
+        },
+    )
+
+    def track_agent_invocation(result):
+        intermediate_steps_to_obj = [
+            {
+                **vars(toolClass),
+                "message_log": str(toolClass.message_log),
+                "response": response,
+            }
+            for toolClass, response in result.get("intermediate_steps", [])
+        ]
+
+        analytics.track(
+            api_user.id,
+            "Invoked Agent",
+            {
+                "agent": agent_config.id,
+                "llm_model": agent_config.llmModel,
+                "sessionId": session_id,
+                # default http status code is 200
+                "response": {
+                    "status_code": result.get("status_code", 200),
+                    "error": result.get("error", None),
+                },
+                "output": result.get("output", None),
+                "input": result.get("input", None),
+                "intermediate_steps": intermediate_steps_to_obj,
+                "prompt_tokens": costCallback.prompt_tokens,
+                "completion_tokens": costCallback.completion_tokens,
+                "prompt_tokens_cost_usd": costCallback.prompt_tokens_cost_usd,
+                "completion_tokens_cost_usd": costCallback.completion_tokens_cost_usd,
+            },
+        )
+
+    costCallback = CostCalcAsyncHandler(model=LLM_MAPPING[agent_config.llmModel])
+
+    agentCallbacks = [costCallback]
+
+    if langfuse_handler:
+        agentCallbacks.append(langfuse_handler)
+
+    if agentops_handler:
+        agentCallbacks.append(agentops_handler)
 
     async def send_message(
         agent: LLMChain | AgentExecutor,
@@ -230,10 +311,12 @@ async def invoke(
     ) -> AsyncIterable[str]:
         try:
             task = asyncio.ensure_future(
-                agent.acall(
-                    inputs={"input": content},
-                    tags=[agent_id],
-                    callbacks=[langfuse_handler] if langfuse_handler else None,
+                agent.ainvoke(
+                    config={
+                        "callbacks": agentCallbacks,
+                        "tags": [agent_id],
+                    },
+                    input=content,
                 )
             )
 
@@ -241,7 +324,15 @@ async def invoke(
                 yield ("event: message\n" f"data: {token}\n\n")
 
             await task
+
             result = task.result()
+
+            if SEGMENT_WRITE_KEY:
+                try:
+                    track_agent_invocation(result)
+                except Exception as e:
+                    logging.error(f"Error tracking agent invocation: {e}")
+
             if "intermediate_steps" in result:
                 for step in result["intermediate_steps"]:
                     agent_action_message_log = step[0]
@@ -255,18 +346,21 @@ async def invoke(
                         )
         except Exception as error:
             logging.error(f"Error in send_message: {error}")
+            if SEGMENT_WRITE_KEY:
+                try:
+                    track_agent_invocation({"error": str(error), "status_code": 500})
+                except Exception as e:
+                    logging.error(f"Error tracking agent invocation: {e}")
             yield ("event: error\n" f"data: {error}\n\n")
         finally:
             callback.done.set()
-
-    if SEGMENT_WRITE_KEY:
-        analytics.track(api_user.id, "Invoked Agent")
 
     logging.info("Invoking agent...")
     session_id = body.sessionId
     input = body.input
     enable_streaming = body.enableStreaming
     output_schema = body.outputSchema
+
     callback = CustomAsyncIteratorCallbackHandler()
     agent = await AgentBase(
         agent_id=agent_id,
@@ -274,6 +368,9 @@ async def invoke(
         enable_streaming=enable_streaming,
         output_schema=output_schema,
         callback=callback,
+        session_tracker=agentops_handler,
+        llm_params=body.llm_params,
+        agent_config=agent_config,
     ).get_agent()
 
     if enable_streaming:
@@ -283,17 +380,27 @@ async def invoke(
         return StreamingResponse(generator, media_type="text/event-stream")
 
     logging.info("Streaming not enabled. Invoking agent synchronously...")
-    output = await agent.acall(
-        inputs={"input": input},
-        tags=[agent_id],
-        callbacks=[langfuse_handler] if langfuse_handler else None,
+
+    output = await agent.ainvoke(
+        config={
+            "callbacks": agentCallbacks,
+            "tags": [agent_id],
+        },
+        input=input,
     )
+
     if output_schema:
         try:
             output = json.loads(output.get("output"))
         except Exception as e:
             logging.error(f"Error parsing output: {e}")
-            output = None
+
+    if not enable_streaming and SEGMENT_WRITE_KEY:
+        try:
+            track_agent_invocation(output)
+        except Exception as e:
+            logging.error(f"Error tracking agent invocation: {e}")
+
     return {"success": True, "data": output}
 
 
@@ -506,27 +613,3 @@ async def remove_datasource(
         return {"success": True, "data": None}
     except Exception as e:
         handle_exception(e)
-
-
-# Agent runs
-@router.get(
-    "/agents/{agent_id}/runs",
-    name="list_runs",
-    description="List agent runs",
-    response_model=AgentRunListResponse,
-)
-async def list_runs(agent_id: str, api_user=Depends(get_current_api_user)):
-    """Endpoint for listing agent runs"""
-    is_langsmith_enabled = config("LANGCHAIN_TRACING_V2", False)
-    if is_langsmith_enabled == "True":
-        langsmith_client = Client()
-        try:
-            output = langsmith_client.list_runs(
-                project_id=config("LANGSMITH_PROJECT_ID"),
-                filter=f"has(tags, '{agent_id}')",
-            )
-            return {"success": True, "data": output}
-        except Exception as e:
-            handle_exception(e)
-
-    return {"success": False, "data": []}

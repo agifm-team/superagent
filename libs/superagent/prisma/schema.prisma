@@ -44,6 +44,7 @@ enum LLMModel {
   LLAVA_13B
   NOUS_HERMES_2_VISION_7B
   LLAMA_2_13B_CHAT
+  MIXTRAL_8X7B_INSTRUCT_V01
 }
 
 enum ToolType {
@@ -98,20 +99,22 @@ enum VectorDbProvider {
   ASTRA_DB
   WEAVIATE
   QDRANT
+  SUPABASE
 }
 
 model ApiUser {
-  id          String       @id @default(uuid())
-  token       String?
-  email       String?      @db.Text
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  agents      Agent[]
-  llms        LLM[]
-  datasources Datasource[]
-  tools       Tool[]
-  workflows   Workflow[]
-  vectorDb    VectorDb[]
+  id              String           @id @default(uuid())
+  token           String?
+  email           String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  agents          Agent[]
+  llms            LLM[]
+  datasources     Datasource[]
+  tools           Tool[]
+  workflows       Workflow[]
+  vectorDb        VectorDb[]
+  workflowConfigs WorkflowConfig[]
 }
 
 model Agent {
@@ -124,8 +127,7 @@ model Agent {
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   llms           AgentLLM[]
-  provider       String?
-  llmModel       LLMModel          @default(GPT_3_5_TURBO_16K_0613)
+  llmModel       LLMModel?         @default(GPT_3_5_TURBO_16K_0613)
   prompt         String?
   apiUserId      String
   apiUser        ApiUser           @relation(fields: [apiUserId], references: [id])
@@ -156,7 +158,7 @@ model AgentDatasource {
   agentId      String
   datasourceId String
   agent        Agent      @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  datasource   Datasource @relation(fields: [datasourceId], references: [id])
+  datasource   Datasource @relation(fields: [datasourceId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -182,7 +184,7 @@ model AgentTool {
   agentId   String
   toolId    String
   agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  tool      Tool     @relation(fields: [toolId], references: [id])
+  tool      Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -213,27 +215,39 @@ model AgentLLM {
 }
 
 model Workflow {
-  id          String         @id @default(uuid())
-  name        String
-  description String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  steps       WorkflowStep[]
-  apiUserId   String
-  apiUser     ApiUser        @relation(fields: [apiUserId], references: [id])
+  id              String           @id @default(uuid())
+  name            String
+  description     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  steps           WorkflowStep[]
+  apiUserId       String
+  apiUser         ApiUser          @relation(fields: [apiUserId], references: [id])
+  workflowConfigs WorkflowConfig[]
+}
+
+model WorkflowConfig {
+  id         String   @id @default(uuid())
+  config     Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  ApiUser    ApiUser? @relation(fields: [apiUserId], references: [id])
+  apiUserId  String?
 }
 
 model WorkflowStep {
   id         String   @id @default(uuid())
   order      Int
   workflowId String
-  workflow   Workflow @relation(fields: [workflowId], references: [id])
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   input      String?  @db.Text
   output     String?  @db.Text
   agentId    String
-  agent      Agent    @relation(fields: [agentId], references: [id])
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
 }
 
 model VectorDb {

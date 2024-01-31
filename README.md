@@ -4,7 +4,7 @@
 
 # Superagent
 
-### The open framework for building AI Assistants
+### The Open Source AI Assistant Framework & API
 
 <p>
 <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/homanp/Superagent" />
@@ -16,6 +16,8 @@
 <img alt="Discord" src="https://img.shields.io/discord/1110910277110743103?label=Discord&logo=discord&logoColor=white&style=plastic&color=d7b023)](https://discord.gg/e8j7mgjDUK" />
 </p>
 
+<p>Backed by:</p>
+<img width="150px" src="https://asset.brandfetch.io/idKhWTXUYD/idkQv7L0Mm.svg?updated=1668020996653" alt="Backed by YCombinator" />
 </div>
 
 -----
@@ -32,7 +34,9 @@
 
 -----
 
-Superagent is an open-source agent framework that enables any developer to integrate production-ready AI Assistants into any application in a matter of minutes.
+Superagent allows any developer to add powerful AI assistants to their applications. These assistants use large language models (LLM), retrieval augmented generation (RAG), and generative AI to help users.
+
+Fully open-source. Backed by Y Combinator. Part of YC W24.
 
 -----
 
@@ -50,19 +54,19 @@ Superagent lets you build any AI application/microservice you want, including:
 - Co-pilots & AI assistants.
 - Content generation.
 - Data aggregation.
-- Workflow automation.
+- Workflow automation agent.
 
 
 ## 👀 Features:
 
 - Memory
 - Streaming
-- Custom finetuning 🆕
-- Python/Typescript SDKs
+- Python and Typescript SDKs
 - REST API
 - API connectivity
 - Vectorization
-- Support for proprietary and OSS LLMs
+- Support for third-party vector stores (e.g Weaviate, Pinecone)
+- Support for proprietary and open-source LLMs
 - API concurrency support
 
 
@@ -89,6 +93,9 @@ If you are planning to integrate Superagent into your stack, you can use one of 
 Superagent is an open-source project, and contributions are welcome. If you want to contribute, you can create new features, fix bugs, or improve the infrastructure. Please refer to the [CONTRIBUTING.md](https://github.com/homanp/Superagent/blob/main/.github/CONTRIBUTING.md) file in the repository for more information on how to contribute.
 
 To see how to contribute, visit [Contribution guidelines](https://github.com/homanp/Superagent/blob/main/.github/CONTRIBUTING.md)
+
+To help with contributions, you can search, navigate, and understand Superagent's source code using Onboard AI's free tool LearnThisRepo.
+[learnthisrepo.com/superagent](https://learnthisrepo.com/superagent)
 
 <a href="https://github.com/homanp/superagent/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=homanp/superagent" />

@@ -1,14 +1,15 @@
 import datetime
 import json
+import re
 from typing import Any, List
 
 from decouple import config
 from langchain.agents import AgentType, initialize_agent
 from langchain.chains import LLMChain
-from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
 from langchain.memory.motorhead_memory import MotorheadMemory
 from langchain.prompts import MessagesPlaceholder, PromptTemplate
 from langchain.schema import SystemMessage
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from slugify import slugify
 
 from app.agents.base import AgentBase
@@ -22,9 +23,24 @@ from app.utils.llm import LLM_MAPPING, OPENROUTER_MAPPING
 from prisma.models import Agent, AgentDatasource, AgentLLM, AgentTool
 
 DEFAULT_PROMPT = (
-    "You are a helpful AI Assistant, anwer the users questions to "
+    "You are a helpful AI Assistant, answer the users questions to "
     "the best of your ability."
 )
+
+
+def conform_function_name(url):
+    """
+    Validates OpenAI function names and modifies them to conform to the regex
+    """
+    regex_pattern = r"^[a-zA-Z0-9_-]{1,64}$"
+
+    # Check if the URL matches the regex
+    if re.match(regex_pattern, url):
+        return url  # URL is already valid
+    else:
+        # Modify the URL to conform to the regex
+        valid_url = re.sub(r"[^a-zA-Z0-9_-]", "", url)[:64]
+        return valid_url
 
 
 def recursive_json_loads(data):
@@ -84,7 +100,9 @@ class LangchainAgent(AgentBase):
                 PydanticModel = create_pydantic_model_from_object(args)
                 tool = create_tool(
                     tool_class=tool_info["class"],
-                    name=metadata.get("functionName"),
+                    name=conform_function_name(
+                        slugify(metadata.get("functionName", agent_tool.tool.name))
+                    ),
                     description=agent_tool.tool.description,
                     metadata=agent_tool.tool.metadata,
                     args_schema=PydanticModel,
@@ -93,7 +111,7 @@ class LangchainAgent(AgentBase):
             else:
                 tool = create_tool(
                     tool_class=tool_info["class"],
-                    name=slugify(agent_tool.tool.name),
+                    name=conform_function_name(slugify(agent_tool.tool.name)),
                     description=agent_tool.tool.description,
                     metadata=agent_tool.tool.metadata,
                     args_schema=tool_info["schema"],
@@ -106,14 +124,25 @@ class LangchainAgent(AgentBase):
         return tools
 
     async def _get_llm(self, agent_llm: AgentLLM, model: str) -> Any:
+        llm_params = {
+            "temperature": 0,
+            **(self.llm_params.dict() if self.llm_params else {}),
+        }
+
+        callbacks = []
+        if self.enable_streaming:
+            callbacks.append(self.callback)
+        if self.session_tracker:
+            callbacks.append(self.session_tracker)
+
         if agent_llm.llm.provider == "OPENAI":
             return ChatOpenAI(
                 model=LLM_MAPPING[model],
                 openai_api_key=agent_llm.llm.apiKey,
-                temperature=0,
                 streaming=self.enable_streaming,
-                callbacks=[self.callback] if self.enable_streaming else [],
+                callbacks=callbacks,
                 **(agent_llm.llm.options if agent_llm.llm.options else {}),
+                **(llm_params),
             )
         if agent_llm.llm.provider == "OPENROUTER":
             return ChatOpenAI(
@@ -131,11 +160,10 @@ class LangchainAgent(AgentBase):
         if agent_llm.llm.provider == "AZURE_OPENAI":
             return AzureChatOpenAI(
                 api_key=agent_llm.llm.apiKey,
-                temperature=0,
-                openai_api_type="azure",
                 streaming=self.enable_streaming,
-                callbacks=[self.callback] if self.enable_streaming else [],
+                callbacks=callbacks,
                 **(agent_llm.llm.options if agent_llm.llm.options else {}),
+                **(llm_params),
             )
 
     async def _get_prompt(self, agent: Agent) -> str:

@@ -1,4 +1,4 @@
-from langchain.tools import BaseTool
+from langchain_community.tools import BaseTool
 
 
 class Function(BaseTool):

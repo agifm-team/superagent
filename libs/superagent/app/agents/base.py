@@ -1,11 +1,16 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
-from app.utils.prisma import prisma
+from agentops.langchain_callback_handler import (
+    AsyncCallbackHandler,
+    LangchainCallbackHandler,
+)
+
+from app.models.request import LLMParams
 from app.utils.streaming import CustomAsyncIteratorCallbackHandler
 from prisma.models import Agent, AgentDatasource, AgentLLM, AgentTool
 
 DEFAULT_PROMPT = (
-    "You are a helpful AI Assistant, anwer the users questions to "
+    "You are a helpful AI Assistant, answer the users questions to "
     "the best of your ability."
 )
 
@@ -18,12 +23,18 @@ class AgentBase:
         enable_streaming: bool = False,
         output_schema: str = None,
         callback: CustomAsyncIteratorCallbackHandler = None,
+        session_tracker: LangchainCallbackHandler | AsyncCallbackHandler = None,
+        llm_params: Optional[LLMParams] = {},
+        agent_config: Agent = None,
     ):
+        self.session_tracker = session_tracker
         self.agent_id = agent_id
         self.session_id = session_id
         self.enable_streaming = enable_streaming
         self.output_schema = output_schema
         self.callback = callback
+        self.llm_params = llm_params
+        self.agent_config = agent_config
 
     async def _get_tools(
         self, agent_datasources: List[AgentDatasource], agent_tools: List[AgentTool]
@@ -40,18 +51,7 @@ class AgentBase:
         raise NotImplementedError
 
     async def get_agent(self):
-        agent_config = await prisma.agent.find_unique_or_raise(
-            where={"id": self.agent_id},
-            include={
-                "llms": {"include": {"llm": True}},
-                "datasources": {
-                    "include": {"datasource": {"include": {"vectorDb": True}}}
-                },
-                "tools": {"include": {"tool": True}},
-            },
-        )
-
-        if agent_config.llms[0].llm.provider in ["OPENAI", "AZURE_OPENAI", "OPENROUTER"]:
+        if self.agent_config.llms[0].llm.provider in ["OPENAI", "AZURE_OPENAI", "OPENROUTER"]:
             from app.agents.langchain import LangchainAgent
 
             agent = LangchainAgent(
@@ -60,6 +60,8 @@ class AgentBase:
                 enable_streaming=self.enable_streaming,
                 output_schema=self.output_schema,
                 callback=self.callback,
+                session_tracker=self.session_tracker,
+                llm_params=self.llm_params,
             )
         else:
             from app.agents.superagent import SuperagentAgent
@@ -70,6 +72,7 @@ class AgentBase:
                 enable_streaming=self.enable_streaming,
                 output_schema=self.output_schema,
                 callback=self.callback,
+                session_tracker=self.session_tracker,
             )
 
-        return await agent.get_agent(config=agent_config)
+        return await agent.get_agent(config=self.agent_config)

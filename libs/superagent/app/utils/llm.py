@@ -29,6 +29,9 @@ OPENROUTER_MAPPING = {
     "LLAMA_2_13B_CHAT": "meta-llama/llama-2-13b-chat"
 }
 
+LLM_REVERSE_MAPPING = {v: k for k, v in LLM_MAPPING.items()}
+
+
 LLM_PROVIDER_MAPPING = {
     "OPENAI": [
         "GPT_3_5_TURBO_16K_0613",

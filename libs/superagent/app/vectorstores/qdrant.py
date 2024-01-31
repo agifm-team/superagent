@@ -10,11 +10,12 @@ from qdrant_client.http import models as rest
 from qdrant_client.http.models import PointStruct
 
 from app.utils.helpers import get_first_non_null
+from app.vectorstores.abstract import VectorStoreBase
 
 logger = logging.getLogger(__name__)
 
 
-class QdrantVectorStore:
+class QdrantVectorStore(VectorStoreBase):
     def __init__(
         self,
         options: dict,
@@ -55,15 +56,13 @@ class QdrantVectorStore:
             api_key=variables["QDRANT_API_KEY"],
         )
         self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-ada-002", openai_api_key=config("OPENAI_API_KEY")
+            model="text-embedding-3-small", openai_api_key=config("OPENAI_API_KEY")
         )
 
         self.index_name = variables["QDRANT_INDEX"]
         logger.info(f"Initialized Qdrant Client with: {self.index_name}")
 
-    def embed_documents(
-        self, documents: list[Document], _batch_size: int = 100
-    ) -> None:
+    def embed_documents(self, documents: list[Document], batch_size: int = 100) -> None:
         collections = self.client.get_collections()
         if self.index_name not in [c.name for c in collections.collections]:
             self.client.recreate_collection(
@@ -80,7 +79,7 @@ class QdrantVectorStore:
         for document in documents:
             i += 1
             response = openai.embeddings.create(
-                input=document.page_content, model="text-embedding-ada-002"
+                input=document.page_content, model="text-embedding-3-small"
             )
             points.append(
                 PointStruct(
@@ -99,7 +98,7 @@ class QdrantVectorStore:
         _query_type: Literal["document", "all"] = "document",
     ) -> list[str]:
         response = openai.embeddings.create(
-            input=prompt, model="text-embedding-ada-002"
+            input=prompt, model="text-embedding-3-small"
         )
         embeddings = response.data[0].embedding
         search_result = self.client.search(

@@ -11,6 +11,7 @@ from pinecone.core.client.models import QueryResponse
 from pydantic.dataclasses import dataclass
 
 from app.utils.helpers import get_first_non_null
+from app.vectorstores.abstract import VectorStoreBase
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class Response:
         self.metadata = metadata or {}
 
 
-class PineconeVectorStore:
+class PineconeVectorStore(VectorStoreBase):
     def __init__(
         self,
         options: dict,
@@ -63,6 +64,8 @@ class PineconeVectorStore:
             ),
         }
 
+        logger.info(f"USING VECTORSTORE: {variables}")
+
         for var, value in variables.items():
             if not value:
                 raise ValueError(
@@ -80,7 +83,7 @@ class PineconeVectorStore:
         logger.info(f"Index name: {self.index_name}")
         self.index = pinecone.Index(self.index_name)
         self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-ada-002", openai_api_key=config("OPENAI_API_KEY")
+            model="text-embedding-3-small", openai_api_key=config("OPENAI_API_KEY")
         )  # type: ignore
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)

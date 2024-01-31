@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class AlgoliaInput(BaseModel):
@@ -14,6 +14,10 @@ class DatasourceInput(BaseModel):
 
 class BingSearchInput(BaseModel):
     search_query: str
+
+
+class CodeInterpreterInput(BaseModel):
+    python_code: str
 
 
 class MetaphorSearchInput(BaseModel):
@@ -83,6 +87,6 @@ class FunctionInput(BaseModel):
 
 
 class HTTPInput(BaseModel):
-    url: str
-    method: str = Field("GET", regex="^(GET|POST)$")
+    url: Optional[str] = None
+    method: Optional[str] = None
     body: Optional[dict] = {}

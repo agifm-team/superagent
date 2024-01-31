@@ -10,6 +10,7 @@ from langchain.docstore.document import Document
 from langchain.embeddings.openai import OpenAIEmbeddings  # type: ignore
 from pydantic.dataclasses import dataclass
 from app.utils.helpers import get_first_non_null
+from app.vectorstores.abstract import VectorStoreBase
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ class Response:
         self.metadata = metadata or {}
 
 
-class WeaviateVectorStore:
+class WeaviateVectorStore(VectorStoreBase):
     def __init__(
         self,
         options: dict,
@@ -85,7 +86,7 @@ class WeaviateVectorStore:
             auth_client_secret=auth,
         )
         self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-ada-002", openai_api_key=config("OPENAI_API_KEY")
+            model="text-embedding-3-small", openai_api_key=config("OPENAI_API_KEY")
         )
 
         self.index_name = variables["WEAVIATE_INDEX"]
