@@ -10,6 +10,15 @@ import { RxGear } from "react-icons/rx"
 import { v4 as uuid } from "uuid"
 
 import { Api } from "@/lib/api"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Spinner } from "@/components/ui/spinner"
@@ -116,6 +125,35 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
     [steps]
   )
 
+  const handleDeploySubmit = async () => {
+    const deployUrl = `https://bots.pixx.co/add/workflows`
+    const profilePhoto = agent.avatar === null ? "" : agent.avatar;
+    const response = await fetch(deployUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email_id: email,
+        bot_username: preferredBotName,
+        api_key: profile.api_key,
+        workflow_name: workflow.name,
+        workflow_id: workflow.id
+      }),
+    })
+
+    // Check response and show toast notification accordingly
+    if (response.ok) {
+      toast({
+        description: "Bot deployed successfully!",
+      })
+    } else {
+      toast({
+        description: "Failed to deploy bot. Please try again.",
+      })
+    }
+  }
+
   const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
     setSteps((prevSteps) =>
       update(prevSteps, {
@@ -200,6 +238,51 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
             >
               {isSaving ? <Spinner /> : "Save"}
             </Button>
+            <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="secondary">
+                Deploy
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Deploy your bot</DialogTitle>
+                <DialogDescription>
+                  Enter your preferred bot name and deploy it.
+                </DialogDescription>
+              </DialogHeader>
+              <Input
+                value={preferredBotName}
+                onChange={(e) => setPreferredBotName(e.target.value)}
+                placeholder="Preferred bot name"
+                disabled={isCheckingAvailability}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleCheckUsernameAvailability}
+                disabled={
+                  isCheckingAvailability || preferredBotName.trim() === ""
+                }
+              >
+                Check Availability
+              </Button>
+              {availabilityCheckDone &&
+                (isUsernameAvailable ? (
+                  <p>Username is available!</p>
+                ) : (
+                  <p>Username is not available. Try another one.</p>
+                ))}
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDeploySubmit}
+                disabled={!isUsernameAvailable}
+              >
+                Deploy
+              </Button>
+            </DialogContent>
+          </Dialog>
           </div>
           <div>
             {steps?.map((step, stepIndex: number) => (
