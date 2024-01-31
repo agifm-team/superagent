@@ -4,7 +4,7 @@ info:
   description: The open framework for building AI Assistants
   version: 0.1.54
 servers:
-  - url: https://api.agispace.co
+  - url: https://api.pixx.co
 paths:
   /api/v1/agents:
     get:

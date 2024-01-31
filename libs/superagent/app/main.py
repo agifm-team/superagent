@@ -36,7 +36,7 @@ app = FastAPI(
     docs_url="/",
     description="The open framework for building AI Assistants",
     version="0.1.54",
-    servers=[{"url": "https://api.agispace.co"}],
+    servers=[{"url": "https://api.pixx.co"}],
 )
 
 app.add_middleware(

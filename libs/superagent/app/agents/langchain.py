@@ -119,7 +119,7 @@ class LangchainAgent(AgentBase):
             return ChatOpenAI(
                 model=OPENROUTER_MAPPING[model],
                 default_headers={
-                    "HTTP-Referer": "https://agispace.co", # Optional, for including your app on openrouter.ai rankings.
+                    "HTTP-Referer": "https://pixx.co", # Optional, for including your app on openrouter.ai rankings.
                     "X-Title": "AgiSpace", #Optional. Shows in rankings on openrouter.ai.
                 },
                 openai_api_key=agent_llm.llm.apiKey,

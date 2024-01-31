@@ -10,7 +10,7 @@ class Agent(BaseTool):
     def _run(self, input: str) -> str:
         agent_id = self.metadata["agentId"]
         api_key = self.metadata["apiKey"]
-        url = f"https://api.agispace.co/api/v1/agents/{agent_id}/invoke"
+        url = f"https://api.pixx.co/api/v1/agents/{agent_id}/invoke"
         headers = {
             "content-type": "application/json",
             "authorization": f"Bearer {api_key}",
@@ -24,7 +24,7 @@ class Agent(BaseTool):
         session_id = self.metadata["sessionId"]
         agent_id = self.metadata["agentId"]
         api_key = self.metadata["apiKey"]
-        url = f"https://api.agispace.co/api/v1/agents/{agent_id}/invoke"
+        url = f"https://api.pixx.co/api/v1/agents/{agent_id}/invoke"
         headers = {
             "content-type": "application/json",
             "authorization": f"Bearer {api_key}",

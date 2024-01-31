@@ -40,7 +40,7 @@ import DeleteAgentButton from "./delete-agent-button"
 
 const baseUrl =
   process.env.NODE_ENV === "production"
-    ? "https://super.agispace.co"
+    ? "https://super.pixx.co"
     : "http://localhost:3000"
 
 export default function Header({
@@ -67,7 +67,7 @@ export default function Header({
 
     try {
       const response = await fetch(
-        `https://matrix.agispace.co/_matrix/client/v3/register/available?username=${preferredBotName}`
+        `https://matrix.pixx.co/_matrix/client/v3/register/available?username=${preferredBotName}`
       )
 
       // Set availability based on response status
@@ -87,7 +87,7 @@ export default function Header({
   }
 
   const handleDeploySubmit = async () => {
-    const deployUrl = `https://bots.agispace.co/add`
+    const deployUrl = `https://bots.pixx.co/add`
     const profilePhoto = agent.avatar === null ? "" : agent.avatar;
     const response = await fetch(deployUrl, {
       method: "POST",

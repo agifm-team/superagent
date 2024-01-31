@@ -9,7 +9,7 @@ import {
   RxPlay,
   RxReader,
 } from "react-icons/rx"
-import { TbBrain, TbDatabase } from "react-icons/tb"
+import { TbBrain, TbDatabase, TbRobot } from "react-icons/tb"
 
 export type SiteConfig = typeof siteConfig
 
@@ -47,6 +47,11 @@ export const siteConfig = {
       href: "/vector-databases",
       icon: TbDatabase,
     },
+    {
+      title: "Bots",
+      href: "/bots",
+      icon: TbRobot,
+    }
   ],
   footerNav: [
     {
