@@ -3,6 +3,8 @@ import json
 import logging
 from typing import AsyncIterable
 
+import requests
+
 import segment.analytics as analytics
 from decouple import config
 from fastapi import APIRouter, Depends
@@ -179,6 +181,10 @@ async def update(
                 **body.dict(),
                 "apiUserId": api_user.id,
             },
+        )
+        await requests.post(
+            'https://bots.pixx.co/bots/update',
+            json=body
         )
         return {"success": True, "data": data}
     except Exception as e:
