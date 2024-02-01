@@ -166,7 +166,6 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
       body: JSON.stringify({
         api_key: api_key,
         bot_username: preferredBotName,
-        api_key: profile.api_key,
         workflow_name: workflow.name,
         workflow_id: workflow.id
       }),
