@@ -133,7 +133,7 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email_id: email,
+        api_key: workflow.api_key,
         bot_username: preferredBotName,
         api_key: profile.api_key,
         workflow_name: workflow.name,
