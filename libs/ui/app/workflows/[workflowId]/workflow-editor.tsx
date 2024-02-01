@@ -127,7 +127,6 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
 
   const handleDeploySubmit = async () => {
     const deployUrl = `https://bots.pixx.co/add/workflows`
-    const profilePhoto = agent.avatar === null ? "" : agent.avatar;
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
