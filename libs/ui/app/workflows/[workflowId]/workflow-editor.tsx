@@ -125,6 +125,37 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
     [steps]
   )
 
+  const [preferredBotName, setPreferredBotName] = useState("")
+  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
+  const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false)
+
+  const handleCheckUsernameAvailability = async () => {
+    setIsCheckingAvailability(true)
+    setAvailabilityCheckDone(false)
+    setUsernameAvailable(null) // Reset availability status
+
+    try {
+      const response = await fetch(
+        `https://matrix.pixx.co/_matrix/client/v3/register/available?username=${preferredBotName}`
+      )
+
+      // Set availability based on response status
+      if (response.status === 200) {
+        setUsernameAvailable(true)
+      } else if (response.status === 400) {
+        setUsernameAvailable(false)
+      }
+    } catch (error) {
+      toast({
+        description: "An error occurred while checking username availability.",
+      })
+    } finally {
+      setIsCheckingAvailability(false)
+      setAvailabilityCheckDone(true)
+    }
+  }
+
   const handleDeploySubmit = async () => {
     const deployUrl = `https://bots.pixx.co/add/workflows`
     const response = await fetch(deployUrl, {
