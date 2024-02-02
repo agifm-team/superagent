@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Superagent
   description: The Open Source AI Assistant Framework & API
-  version: 0.1.69
+  version: 0.1.73
 servers:
   - url: https://api.pixx.co
 paths:
@@ -1487,6 +1487,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/prisma__models__AgentTool'
+    AgentType:
+      title: AgentType
+      enum:
+        - SUPERAGENT
+        - OPENAI_ASSISTANT
+      type: string
+      description: An enumeration.
     AgentUpdate:
       title: AgentUpdate
       type: object
@@ -1589,9 +1596,11 @@ components:
         - GPT_3_5_TURBO_16K_0613
         - GPT_3_5_TURBO_0613
         - GPT_3_5_TURBO_1106
+        - GPT_3_5_TURBO_0125
         - GPT_4_0613
         - GPT_4_32K_0613
         - GPT_4_1106_PREVIEW
+        - GPT_4_TURBO_PREVIEW
         - MISTRAL_7B_INSTRUCT_V01
         - MIXTRAL_8X7B_INSTRUCT_V01
       type: string
@@ -2085,6 +2094,7 @@ components:
       title: Agent
       required:
         - id
+        - type
         - name
         - description
         - isActive
@@ -2096,6 +2106,8 @@ components:
         id:
           title: Id
           type: string
+        type:
+          $ref: '#/components/schemas/AgentType'
         name:
           title: Name
           type: string
