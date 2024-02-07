@@ -306,7 +306,7 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
                 </Button>
                 <Input
                   type="checkbox"
-                  checked={publishToMarketplace}
+                  defaultChecked={publishToMarketplace}
                   onChange={(state) => !state }
                 >
                   Publish to Marketplace

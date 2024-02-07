@@ -259,7 +259,7 @@ Superagent({
               </Button>
               <Input
                 type="checkbox"
-                checked={publishToMarketplace}
+                defaultChecked={publishToMarketplace}
                 onChange={(state) => !state }
               >
                 Publish to Marketplace
