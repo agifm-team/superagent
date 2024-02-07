@@ -200,7 +200,7 @@ async def update(
             },
         )
         await requests.post(
-            'https://bots.pixx.co/bots/update',
+            f'https://bots.pixx.co/bots/update?agent_id={agent_id}',
             json=body
         )
         return {"success": True, "data": data}

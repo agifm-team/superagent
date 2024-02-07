@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -56,9 +57,13 @@ export default function Header({
   const router = useRouter()
   const { toast } = useToast()
   const [preferredBotName, setPreferredBotName] = useState("")
-  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+    null
+  )
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
   const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false)
+  const [publishToMarketplace, setPublishToMarketplace] = useState(false)
+  const [tags, setTags] = useState("")
 
   const handleCheckUsernameAvailability = async () => {
     setIsCheckingAvailability(true)
@@ -88,7 +93,7 @@ export default function Header({
 
   const handleDeploySubmit = async () => {
     const deployUrl = `https://bots.pixx.co/add`
-    const profilePhoto = agent.avatar === null ? "" : agent.avatar;
+    const profilePhoto = agent.avatar === null ? "" : agent.avatar
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
@@ -101,7 +106,9 @@ export default function Header({
         agent_name: agent.name,
         agent_desc: agent.description,
         profile: profilePhoto,
-        agent_id: agent.id
+        agent_id: agent.id,
+        tags: tags,
+        publish: publishToMarketplace
       }),
     })
 
@@ -250,6 +257,17 @@ Superagent({
               >
                 Check Availability
               </Button>
+              <Checkbox
+                checked={publishToMarketplace}
+                onChange={(e) => setPublishToMarketplace(e.target.checked)}
+              >
+                Publish to Marketplace
+              </Checkbox>
+              <Input
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="Tags"
+              />
               {availabilityCheckDone &&
                 (isUsernameAvailable ? (
                   <p>Username is available!</p>

@@ -10,6 +10,7 @@ import { RxGear } from "react-icons/rx"
 import { v4 as uuid } from "uuid"
 
 import { Api } from "@/lib/api"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Checkbox } from "@components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Spinner } from "@/components/ui/spinner"
 import { useToast } from "@/components/ui/use-toast"
@@ -126,9 +127,13 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
   )
 
   const [preferredBotName, setPreferredBotName] = useState("")
-  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+    null
+  )
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
   const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false)
+  const [publishToMarketplace, setPublishToMarketplace] = useState(false)
+  const [tags, setTags] = useState("")
 
   const handleCheckUsernameAvailability = async () => {
     setIsCheckingAvailability(true)
@@ -167,7 +172,10 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
         api_key: api_key,
         bot_username: preferredBotName,
         workflow_name: workflow.name,
-        workflow_id: workflow.id
+        workflow_description: workflow.description,
+        workflow_id: workflow.id,
+        tags: tags,
+        publish: publishToMarketplace,
       }),
     })
 
@@ -268,50 +276,61 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
               {isSaving ? <Spinner /> : "Save"}
             </Button>
             <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="secondary">
-                Deploy
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Deploy your bot</DialogTitle>
-                <DialogDescription>
-                  Enter your preferred bot name and deploy it.
-                </DialogDescription>
-              </DialogHeader>
-              <Input
-                value={preferredBotName}
-                onChange={(e) => setPreferredBotName(e.target.value)}
-                placeholder="Preferred bot name"
-                disabled={isCheckingAvailability}
-              />
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleCheckUsernameAvailability}
-                disabled={
-                  isCheckingAvailability || preferredBotName.trim() === ""
-                }
-              >
-                Check Availability
-              </Button>
-              {availabilityCheckDone &&
-                (isUsernameAvailable ? (
-                  <p>Username is available!</p>
-                ) : (
-                  <p>Username is not available. Try another one.</p>
-                ))}
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleDeploySubmit}
-                disabled={!isUsernameAvailable}
-              >
-                Deploy
-              </Button>
-            </DialogContent>
-          </Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="secondary">
+                  Deploy
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Deploy your bot</DialogTitle>
+                  <DialogDescription>
+                    Enter your preferred bot name and deploy it.
+                  </DialogDescription>
+                </DialogHeader>
+                <Input
+                  value={preferredBotName}
+                  onChange={(e) => setPreferredBotName(e.target.value)}
+                  placeholder="Preferred bot name"
+                  disabled={isCheckingAvailability}
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleCheckUsernameAvailability}
+                  disabled={
+                    isCheckingAvailability || preferredBotName.trim() === ""
+                  }
+                >
+                  Check Availability
+                </Button>
+                <Checkbox
+                  checked={publishToMarketplace}
+                  onChange={(e) => setPublishToMarketplace(e.target.checked)}
+                >
+                  Publish to Marketplace
+                </Checkbox>
+                <Input
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="Tags"
+                />
+                {availabilityCheckDone &&
+                  (isUsernameAvailable ? (
+                    <p>Username is available!</p>
+                  ) : (
+                    <p>Username is not available. Try another one.</p>
+                  ))}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleDeploySubmit}
+                  disabled={!isUsernameAvailable}
+                >
+                  Deploy
+                </Button>
+              </DialogContent>
+            </Dialog>
           </div>
           <div>
             {steps?.map((step, stepIndex: number) => (
