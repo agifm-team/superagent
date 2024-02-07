@@ -257,12 +257,13 @@ Superagent({
               >
                 Check Availability
               </Button>
-              <Checkbox
+              <Input
+                type="checkbox"
                 checked={publishToMarketplace}
-                onChange={(e) => setPublishToMarketplace(e.target.checked)}
+                onChange={(state) => !state }
               >
                 Publish to Marketplace
-              </Checkbox>
+              </Input>
               <Input
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}

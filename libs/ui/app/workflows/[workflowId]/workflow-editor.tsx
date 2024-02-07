@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Spinner } from "@/components/ui/spinner"
 import { useToast } from "@/components/ui/use-toast"
@@ -304,12 +304,13 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
                 >
                   Check Availability
                 </Button>
-                <Checkbox
+                <Input
+                  type="checkbox"
                   checked={publishToMarketplace}
-                  onChange={(e) => setPublishToMarketplace(e.target.checked)}
+                  onChange={(state) => !state }
                 >
                   Publish to Marketplace
-                </Checkbox>
+                </Input>
                 <Input
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
