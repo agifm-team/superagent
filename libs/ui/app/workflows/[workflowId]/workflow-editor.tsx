@@ -304,13 +304,14 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
                 >
                   Check Availability
                 </Button>
+                <DialogHeader>
+                  <DialogTitle>Publish to Marketplace</DialogTitle>
+                </DialogHeader>
                 <Input
                   type="checkbox"
                   defaultChecked={publishToMarketplace}
-                  onChange={(state) => !state }
-                >
-                  Publish to Marketplace
-                </Input>
+                  onChange={() => setPublishToMarketplace(!publishToMarketplace) }
+                />
                 <Input
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}

@@ -257,13 +257,14 @@ Superagent({
               >
                 Check Availability
               </Button>
-              <Input
-                type="checkbox"
-                defaultChecked={publishToMarketplace}
-                onChange={(state) => !state }
-              >
-                Publish to Marketplace
-              </Input>
+              <DialogHeader>
+                  <DialogTitle>Publish to Marketplace</DialogTitle>
+                </DialogHeader>
+                <Input
+                  type="checkbox"
+                  defaultChecked={publishToMarketplace}
+                  onChange={() => setPublishToMarketplace(!publishToMarketplace) }
+                />
               <Input
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
