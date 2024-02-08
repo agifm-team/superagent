@@ -201,7 +201,7 @@ async def update(
         )
         await requests.post(
             f'https://bots.pixx.co/bots/update?agent_id={agent_id}',
-            json=body
+            json=body.model_dump_json()
         )
         return {"success": True, "data": data}
     except Exception as e:
