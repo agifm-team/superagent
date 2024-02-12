@@ -2,12 +2,13 @@ import segment.analytics as analytics
 from decouple import config
 from fastapi import APIRouter, Depends
 
-from app.models.request import ApiUser as ApiUserRequest
+from app.models.request import APIKeyRequest, ApiUser as ApiUserRequest
 from app.models.response import ApiUser as ApiUserResponse
 from app.utils.api import generate_jwt, get_current_api_user, handle_exception
 from app.utils.prisma import prisma
 
 SEGMENT_WRITE_KEY = config("SEGMENT_WRITE_KEY", None)
+ADMIN_API_KEY = config("ADMIN_API_KEY" , None)
 
 router = APIRouter()
 analytics.write_key = SEGMENT_WRITE_KEY
@@ -66,5 +67,19 @@ async def delete(api_user=Depends(get_current_api_user)):
     except Exception as e:
         handle_exception(e)
 
+
+@router.get("/api-users/get_key", 
+            name="get api_key",
+            description="Gets an user's api key using admin key"
+)
+async def get_key(body: APIKeyRequest):
+    if body.adminKey == ADMIN_API_KEY:
+        try:
+           api_user = await prisma.apiuser.find_unique(
+                where={"email" : body.email}
+            )
+           return {"success" : True, "data" : api_user}
+        except Exception as e:
+            handle_exception(e)
 
 # Add an endpoint for regenerating token

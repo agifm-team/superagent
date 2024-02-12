@@ -203,7 +203,7 @@ async def update(
         async with aiohttp.ClientSession() as session:
             await session.post(
                 f'https://bots.pixx.co/bots/update?agent_id={agent_id}',
-                json=body.json()
+                json=body.dict()
             )
         return {"success": True, "data": data}
     except Exception as e:

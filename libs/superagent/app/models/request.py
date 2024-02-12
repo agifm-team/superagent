@@ -8,6 +8,9 @@ from prisma.enums import LLMProvider, VectorDbProvider
 class ApiUser(BaseModel):
     email: str
 
+class APIKeyRequest(BaseModel):
+    email: str
+    adminKey: str
 
 class Agent(BaseModel):
     isActive: bool = True
