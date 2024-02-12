@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 from typing import AsyncIterable
+import aiohttp
 
 import requests
 
@@ -199,10 +200,11 @@ async def update(
                 "apiUserId": api_user.id,
             },
         )
-        await requests.post(
-            f'https://bots.pixx.co/bots/update?agent_id={agent_id}',
-            json=body.model_dump_json()
-        )
+        async with aiohttp.ClientSession() as session:
+            await session.post(
+                f'https://bots.pixx.co/bots/update?agent_id={agent_id}',
+                json=body.json()
+            )
         return {"success": True, "data": data}
     except Exception as e:
         handle_exception(e)
