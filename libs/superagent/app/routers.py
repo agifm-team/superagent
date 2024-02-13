@@ -5,12 +5,11 @@ from app.api import (
     api_user,
     datasources,
     llms,
-    telemetry,
     tools,
     vector_dbs,
-    workflow_configs,
     workflows,
 )
+from app.api.workflow_configs import workflow_configs
 
 router = APIRouter()
 api_prefix = "/api/v1"
@@ -25,4 +24,3 @@ router.include_router(
     workflow_configs.router, tags=["Workflow Config"], prefix=api_prefix
 )
 router.include_router(vector_dbs.router, tags=["Vector Database"], prefix=api_prefix)
-router.include_router(telemetry.router, tags=["Telemetry"], prefix=api_prefix)

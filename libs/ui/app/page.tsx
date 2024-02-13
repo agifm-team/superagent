@@ -8,6 +8,8 @@ import { RxGithubLogo } from "react-icons/rx"
 import { SiAuth0 } from "react-icons/si"
 import * as z from "zod"
 
+import { Api } from "@/lib/api"
+import { analytics } from "@/lib/segment"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -74,9 +76,27 @@ export default function IndexPage() {
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, _session) => {
+      (event, _session) => {
         if (event === "SIGNED_IN") {
-          window.location.href = "/agents"
+          const fetchProfileAndIdentify = async () => {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("user_id", _session?.user.id)
+              .single()
+            if (profile.api_key) {
+              const api = new Api(profile.api_key)
+              await api.indentifyUser({
+                anonymousId: (await analytics.user()).anonymousId(),
+                email: _session?.user.email,
+                firstName: profile.first_name,
+                lastName: profile.last_name,
+                company: profile.company,
+              })
+            }
+            window.location.href = "/workflows"
+          }
+          fetchProfileAndIdentify()
         }
       }
     )
@@ -89,7 +109,7 @@ export default function IndexPage() {
   return (
     <section className="container flex h-screen max-w-md flex-col justify-center space-y-8">
       <Logo width={50} height={50} />
-      <div className="flex flex-col space-y-4">
+      <div className="flex flex-col space-y-0">
         <p className="text-lg font-bold">Login to Superagent</p>
       </div>
       <Separator />

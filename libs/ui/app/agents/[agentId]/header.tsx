@@ -1,16 +1,13 @@
 "use client"
 
-import React, { useState } from "react"
+import * as React from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Separator } from "@radix-ui/react-separator"
-import { CodeBlock, dracula } from "react-code-blocks"
-import { RxCopy } from "react-icons/rx"
-import { TbLink, TbTrashX } from "react-icons/tb"
+import { Agent } from "@/models/models"
+import { TbTrash } from "react-icons/tb"
 
-import { Agent } from "@/types/agent"
 import { Profile } from "@/types/profile"
 import { Api } from "@/lib/api"
-import { cn, encodeToIdentifier } from "@/lib/utils"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,29 +17,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { FormLabel } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Toaster } from "@/components/ui/toaster"
-import { useToast } from "@/components/ui/use-toast"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/components/ui/use-toast"
+import { useEditableField } from "@/components/hooks"
 
-import DeleteAgentButton from "./delete-agent-button"
-
-const baseUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://super.pixx.co"
-    : "http://localhost:3000"
+type Mode = "view" | "edit"
 
 export default function Header({
   agent,
@@ -55,7 +36,7 @@ export default function Header({
 }) {
   const api = new Api(profile.api_key)
   const router = useRouter()
-  const { toast } = useToast()
+  const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
   const [preferredBotName, setPreferredBotName] = useState("")
   const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
@@ -124,7 +105,7 @@ export default function Header({
     }
   }
 
-  const handleDelete = async () => {
+  const onAgentDelete = async () => {
     await api.deleteAgentById(agent.id)
     toast({
       description: `Agent with ID: ${agent.id} deleted!`,
@@ -133,162 +114,68 @@ export default function Header({
     router.push("/agents")
   }
 
-  const handleCopyIdToClipboard = () => {
-    navigator.clipboard.writeText(agent.id)
-    toast({
-      description: "Copied ID to clipboard",
-    })
+  const onUpdateAgentName = async (name: string) => {
+    await api.patchAgent(agent.id, { name })
+    router.refresh()
   }
 
-  const embedCode = `<!-- This can be placed anywhere -->
-<div id="superagent-chat"></div>
-
-<!-- This should be placed before the
-closing </body> tag -->
-<script src="https://unpkg.com/superagent-chat-embed-v01/dist/web.js"></script>
-<script>
-Superagent({
-  authorization: "${encodeToIdentifier(agent.id, profile.api_key)}",
-  type: "inline"
-});
-</script>`
-
   return (
-    <>
-      <div className="flex items-center justify-between border-b px-4 py-3">
-        <p className="text-lg">{agent.name}</p>
-        <div className="flex space-x-2">
-          <DeleteAgentButton handleDelete={handleDelete} />
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => handleCopyIdToClipboard()}
-          >
-            <TbLink fontSize="18px" />
-          </Button>
-          <Dialog>
-            <DialogTrigger
-              className={cn(buttonVariants({ variant: "default", size: "sm" }))}
-            >
-              Share
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Share or embed your agent</DialogTitle>
-                <DialogDescription>
-                  Share this agent with anyone or embed it into your
-                  application.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col space-y-2">
-                <p className="font-bold">Share</p>
-                <div className="flex justify-between space-x-2">
-                  <Input
-                    value={`${baseUrl}/share/${encodeToIdentifier(
-                      agent.id,
-                      profile.api_key
-                    )}`}
-                  />
-                  <Button
-                    variant="secondary"
-                    className="flex space-x-2"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${baseUrl}/share/${encodeToIdentifier(
-                          agent.id,
-                          profile.api_key
-                        )}`
-                      )
-                      toast({
-                        description: "Link copied to clipboard!",
-                      })
-                    }}
-                  >
-                    <RxCopy />
-                    <p>Copy</p>
-                  </Button>
-                </div>
-              </div>
-              <Separator />
-              <div className="flex flex-col space-y-2">
-                <p className="font-bold">Embed</p>
-                <p className="text-sm text-muted-foreground">
-                  Copy the following code and place it before the closing body
-                  tag. You can choose between inline or popup as options.
-                </p>
-                <div className="relative max-w-full font-mono text-sm">
-                  <CodeBlock
-                    text={embedCode}
-                    language="html"
-                    showLineNumbers
-                    theme={dracula}
-                    codeContainerStyle={{ width: "450px", overflow: "scroll" }}
-                  />
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="secondary">
-                Deploy
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Deploy your bot</DialogTitle>
-                <DialogDescription>
-                  Enter your preferred bot name and deploy it.
-                </DialogDescription>
-              </DialogHeader>
-              <Input
-                value={preferredBotName}
-                onChange={(e) => setPreferredBotName(e.target.value)}
-                placeholder="Preferred bot name"
-                disabled={isCheckingAvailability}
-              />
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleCheckUsernameAvailability}
-                disabled={
-                  isCheckingAvailability || preferredBotName.trim() === ""
-                }
-              >
-                Check Availability
-              </Button>
-              <DialogHeader>
-                  <DialogTitle>Publish to Marketplace</DialogTitle>
-                </DialogHeader>
-                <Input
-                  type="checkbox"
-                  defaultChecked={publishToMarketplace}
-                  onChange={() => setPublishToMarketplace(!publishToMarketplace) }
-                />
-              <Input
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="Tags"
-              />
-              {availabilityCheckDone &&
-                (isUsernameAvailable ? (
-                  <p>Username is available!</p>
-                ) : (
-                  <p>Username is not available. Try another one.</p>
-                ))}
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleDeploySubmit}
-                disabled={!isUsernameAvailable}
-              >
-                Deploy
-              </Button>
-            </DialogContent>
-          </Dialog>
+    <div className="flex items-center justify-between border-b px-6 py-4">
+      <div className="flex flex-col">
+        <div className="flex space-x-2 py-2 text-sm text-muted-foreground">
+          <Link passHref href="/agents">
+            <span>Agents</span>
+          </Link>
+          <span>/</span>
+          <Badge variant="secondary">
+            <div className="flex items-center space-x-1">
+              <span className="font-mono font-normal text-muted-foreground">
+                {agent?.id}
+              </span>
+            </div>
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col space-y-2">
+            {useEditableField(agent.name, onUpdateAgentName)}
+
+            <span className="font-mono text-xs font-normal text-muted-foreground">
+              <span>
+                CREATED AT:{" "}
+                <span className="text-foreground">
+                  {agent.createdAt.toString()}
+                </span>
+              </span>
+            </span>
+          </div>
         </div>
       </div>
-      <Toaster />
-    </>
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <Button
+          className="space-x-2"
+          size="sm"
+          variant="outline"
+          onClick={() => setDeleteModalOpen(true)}
+        >
+          <TbTrash size={20} />
+          <span>Delete</span>
+        </Button>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onAgentDelete}>
+              Yes, delete!
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   )
 }

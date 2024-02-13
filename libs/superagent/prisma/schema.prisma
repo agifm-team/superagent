@@ -13,12 +13,14 @@ datasource db {
 enum AgentType {
   SUPERAGENT
   OPENAI_ASSISTANT
+  LLM
 }
 
 enum LLMProvider {
   OPENAI
   AZURE_OPENAI
   HUGGINGFACE
+  PERPLEXITY
   OPENROUTER
 }
 
@@ -142,6 +144,7 @@ model Agent {
   datasources    AgentDatasource[]
   tools          AgentTool[]
   workflowSteps  WorkflowStep[]
+  metadata       Json?
 }
 
 model Datasource {
@@ -179,7 +182,7 @@ model Tool {
   description  String
   type         ToolType
   returnDirect Boolean     @default(false)
-  metadata     String      @db.Text
+  metadata     String?     @db.Text
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   apiUserId    String

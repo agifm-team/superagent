@@ -1,98 +1,82 @@
 import { VectorDbProvider } from "@/models/models"
-import { placeholder } from "@uiw/react-codemirror"
-import { GoWorkflow } from "react-icons/go"
 import {
-  RxAvatar,
-  RxDiscordLogo,
-  RxFileText,
-  RxGithubLogo,
-  RxGlobe,
-  RxPlay,
-  RxReader,
-} from "react-icons/rx"
-import { TbBrain, TbDatabase, TbRobot } from "react-icons/tb"
+  TbBrandDiscord,
+  TbFileCode,
+  TbPlug,
+  TbRobot,
+  TbStack2,
+  TbTerminal2,
+  TbUserCircle,
+} from "react-icons/tb"
 
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
   name: "Superagent Cloud",
   description: "The agent framework for large language models",
+  paymentPlans: {
+    hobby: process.env.NEXT_PUBLIC_STRIPE_HOBBY_PLAN,
+    pro: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN,
+  },
   mainNav: [
+    {
+      title: "Workflows",
+      href: "/workflows",
+      icon: TbStack2,
+    },
     {
       title: "Agents",
       href: "/agents",
-      icon: RxPlay,
-    },
-    {
-      title: "workflows",
-      href: "/workflows",
-      icon: GoWorkflow,
-    },
-    {
-      title: "datasources",
-      href: "/datasources",
-      icon: RxReader,
-    },
-    {
-      title: "apis",
-      href: "/apis",
-      icon: RxGlobe,
-    },
-    {
-      title: "llms",
-      href: "/llms",
-      icon: TbBrain,
-    },
-    {
-      title: "vector databases",
-      href: "/vector-databases",
-      icon: TbDatabase,
-    },
-    {
-      title: "Bots",
-      href: "/bots",
       icon: TbRobot,
-    }
+    },
+    {
+      title: "Logs",
+      href: "/logs",
+      icon: TbTerminal2,
+    },
+    {
+      title: "Integrations",
+      href: "/integrations",
+      icon: TbPlug,
+    },
   ],
   footerNav: [
     {
       title: "Discord",
       href: "https://discord.com/invite/mhmJUTjW4b",
-      icon: RxDiscordLogo,
-    },
-    {
-      title: "Github",
-      href: "https://github.com/agifm-team/superagent",
-      icon: RxGithubLogo,
+      icon: TbBrandDiscord,
     },
     {
       title: "Documentation",
       href: "https://docs.superagent.sh",
-      icon: RxFileText,
+      icon: TbFileCode,
     },
     {
       title: "Settings",
       href: "/settings",
-      icon: RxAvatar,
+      icon: TbUserCircle,
     },
   ],
   settingsNav: [
     {
+      id: "user",
       title: "User",
       href: "/settings",
     },
     {
+      id: "apiKeys",
       title: "Api keys",
       href: "/settings/api-keys",
     },
     {
+      id: "appearance",
       title: "Appearance",
       href: "/settings/appearance",
     },
     {
+      id: "billing",
       title: "Billing",
       href: "/settings/billing",
-      disabled: true,
     },
   ],
   defaultLLM: "GPT_3_5_TURBO_16K_0613",
@@ -102,7 +86,6 @@ export const siteConfig = {
       description:
         "Power your assistants with the latest models from OpenAI, powerful for calling external APIs and reasoning.",
       name: "OpenAI",
-      logo: "/openai-logo.png",
       options: [
         {
           value: "GPT_3_5_TURBO_16K_0613",
@@ -140,7 +123,6 @@ export const siteConfig = {
       description:
         "Use Azure OpenAI to power your assistants with the latest OpenAI models.",
       name: "Azure OpenAI",
-      logo: "/azure-logo.png",
       options: [],
     },
     {
@@ -191,7 +173,6 @@ export const siteConfig = {
       id: "HUGGINGFACE",
       description: "Use Open Source models on HuggingFace.",
       name: "HuggingFace",
-      logo: "/hf-logo.png",
       options: [
         {
           value: "MISTRAL_7B_INSTRUCT_V01",
@@ -435,11 +416,80 @@ export const siteConfig = {
       ],
     },
   ],
-
+  llmForm: [
+    {
+      disabled: false,
+      formDescription: "Please enter your OpenAI API key.",
+      provider: "OPENAI",
+      name: "OpenAI",
+      metadata: [
+        {
+          key: "apiKey",
+          type: "input",
+          label: "OpenAI API Key",
+        },
+      ],
+    },
+    {
+      disabled: false,
+      formDescription: "Please enter your Perplexity API key.",
+      provider: "PERPLEXITY",
+      name: "Perplexity AI",
+      metadata: [
+        {
+          key: "apiKey",
+          type: "input",
+          label: "Perplexity API Key",
+        },
+      ],
+    },
+    {
+      disabled: true,
+      formDescription: "Please enter your HF API key.",
+      provider: "HUGGINGFACE",
+      name: "Hugging Face",
+      metadata: [
+        {
+          key: "apiKey",
+          type: "input",
+          label: "HF API Key",
+        },
+      ],
+    },
+    {
+      disabled: false,
+      formDescription: "Please enter your Azure OpenAI API key.",
+      provider: "AZURE_OPENAI",
+      name: "Azure OpenAI",
+      metadata: [
+        {
+          key: "apiKey",
+          type: "input",
+          label: "Azure API Key",
+        },
+        {
+          key: "options.azure_endpoint",
+          type: "input",
+          label: "Azure endpoint URL",
+        },
+        {
+          key: "options.openai_api_version",
+          type: "input",
+          label: "Azure API version",
+        },
+        {
+          key: "options.azure_deployment",
+          type: "input",
+          label: "Azure deployment name",
+        },
+      ],
+    },
+  ],
   vectorDbs: [
     {
       provider: VectorDbProvider[VectorDbProvider.PINECONE],
       name: "Pinecone",
+      logo: "/pinecone.png",
       description:
         "Cloud-based database for storing and searching vectors, enabling fast similarity comparisons. Scales well for large datasets.",
       formDescription: "Please enter your Pinecone credentials.",
@@ -464,6 +514,7 @@ export const siteConfig = {
     {
       provider: VectorDbProvider[VectorDbProvider.QDRANT],
       name: "Qdrant",
+      logo: "/qdrant.png",
       description:
         "Open-source database optimized for efficient vector search and filtering. Handles large datasets effectively while requiring minimal resources.",
       formDescription: "Please enter your Qdrant credentials.",
@@ -488,6 +539,7 @@ export const siteConfig = {
     {
       provider: VectorDbProvider[VectorDbProvider.ASTRA_DB],
       name: "Astra DB",
+      logo: "/datastax.jpeg",
       description:
         "Serverless database built on Cassandra, offering integration with Pinecone for vector similarity search.",
       formDescription: "Please enter your Astra DB credentials",
@@ -522,6 +574,7 @@ export const siteConfig = {
     {
       provider: VectorDbProvider[VectorDbProvider.WEAVIATE],
       name: "Weaviate",
+      logo: "/weaviate.png",
       description:
         "Semantic vector database with schema-based organization. Supports both vector search and connections between data points like a graph.",
       formDescription: "Please enter your Weaviate credentials.",
@@ -546,6 +599,7 @@ export const siteConfig = {
     {
       provider: VectorDbProvider[VectorDbProvider.SUPABASE],
       name: "Supabase",
+      logo: "/supabase.png",
       description:
         "The pgvector extension is particularly useful for tasks such as vector similarity search, retrieval, generation, and clustering",
       formDescription: "Please enter your Supabase Pgvector credentials.",
