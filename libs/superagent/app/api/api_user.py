@@ -68,7 +68,7 @@ async def delete(api_user=Depends(get_current_api_user)):
         handle_exception(e)
 
 
-@router.get("/api-users/get_key", 
+@router.post("/api-users/get_key", 
             name="get api_key",
             description="Gets an user's api key using admin key"
 )
