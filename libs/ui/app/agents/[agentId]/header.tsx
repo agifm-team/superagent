@@ -18,9 +18,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Input } from "@/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks"
 
 type Mode = "view" | "edit"
@@ -36,6 +46,9 @@ export default function Header({
 }) {
   const api = new Api(profile.api_key)
   const router = useRouter()
+
+  const { toast } = useToast()
+
   const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
   const [preferredBotName, setPreferredBotName] = React.useState("")
   const [isUsernameAvailable, setUsernameAvailable] = React.useState<boolean | null>(
@@ -176,6 +189,64 @@ export default function Header({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="secondary">
+                  Deploy
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Deploy your bot</DialogTitle>
+                  <DialogDescription>
+                    Enter your preferred bot name and deploy it.
+                  </DialogDescription>
+                </DialogHeader>
+                <Input
+                  value={preferredBotName}
+                  onChange={(e) => setPreferredBotName(e.target.value)}
+                  placeholder="Preferred bot name"
+                  disabled={isCheckingAvailability}
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleCheckUsernameAvailability}
+                  disabled={
+                    isCheckingAvailability || preferredBotName.trim() === ""
+                  }
+                >
+                  Check Availability
+                </Button>
+                <DialogHeader>
+                  <DialogTitle>Publish to Marketplace</DialogTitle>
+                </DialogHeader>
+                <Input
+                  type="checkbox"
+                  defaultChecked={publishToMarketplace}
+                  onChange={() => setPublishToMarketplace(!publishToMarketplace) }
+                />
+                <Input
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="Tags"
+                />
+                {availabilityCheckDone &&
+                  (isUsernameAvailable ? (
+                    <p>Username is available!</p>
+                  ) : (
+                    <p>Username is not available. Try another one.</p>
+                  ))}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleDeploySubmit}
+                  disabled={!isUsernameAvailable}
+                >
+                  Deploy
+                </Button>
+              </DialogContent>
+            </Dialog>
     </div>
   )
 }
