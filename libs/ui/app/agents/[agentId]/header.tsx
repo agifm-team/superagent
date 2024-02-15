@@ -37,14 +37,14 @@ export default function Header({
   const api = new Api(profile.api_key)
   const router = useRouter()
   const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
-  const [preferredBotName, setPreferredBotName] = useState("")
-  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+  const [preferredBotName, setPreferredBotName] = React.useState("")
+  const [isUsernameAvailable, setUsernameAvailable] = React.useState<boolean | null>(
     null
   )
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
-  const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false)
-  const [publishToMarketplace, setPublishToMarketplace] = useState(false)
-  const [tags, setTags] = useState("")
+  const [isCheckingAvailability, setIsCheckingAvailability] = React.useState(false)
+  const [availabilityCheckDone, setAvailabilityCheckDone] = React.useState(false)
+  const [publishToMarketplace, setPublishToMarketplace] = React.useState(false)
+  const [tags, setTags] = React.useState("")
 
   const handleCheckUsernameAvailability = async () => {
     setIsCheckingAvailability(true)
