@@ -6,6 +6,8 @@ import { TbCode, TbTrash } from "react-icons/tb"
 
 import { Profile } from "@/types/profile"
 import { Api } from "@/lib/api"
+import { cookies } from "next/headers"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/components/ui/use-toast"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -27,15 +30,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks/"
 
 interface HeaderProps {
   profile: Profile
   workflow: Workflow
 }
-
 
 const Header = ({ profile, workflow }: HeaderProps) => {
   const router = useRouter()
@@ -80,6 +81,10 @@ const Header = ({ profile, workflow }: HeaderProps) => {
   }
 
   const handleDeploySubmit = async () => {
+    const supabase = createRouteHandlerClient({ cookies })
+    const {
+      data: { user },
+    } = await supabase.auth.getSession()
     const deployUrl = `https://bots.pixx.co/add/workflows`
     const response = await fetch(deployUrl, {
       method: "POST",
@@ -88,6 +93,7 @@ const Header = ({ profile, workflow }: HeaderProps) => {
       },
       body: JSON.stringify({
         api_key: profile.api_key,
+        email_id: user.email,
         bot_username: preferredBotName,
         workflow_name: workflow.name,
         workflow_description: workflow.description,
@@ -108,7 +114,6 @@ const Header = ({ profile, workflow }: HeaderProps) => {
       })
     }
   }
-
 
   const updateName = async (name: string) => {
     await api.patchWorkflow(workflow.id, {

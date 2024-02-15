@@ -8,6 +8,8 @@ import { TbTrash } from "react-icons/tb"
 
 import { Profile } from "@/types/profile"
 import { Api } from "@/lib/api"
+import { cookies } from "next/headers"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +20,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -28,8 +31,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks"
 
@@ -38,7 +40,7 @@ type Mode = "view" | "edit"
 export default function Header({
   agent,
   profile,
-  email
+  email,
 }: {
   agent: Agent
   profile: Profile
@@ -51,11 +53,13 @@ export default function Header({
 
   const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
   const [preferredBotName, setPreferredBotName] = React.useState("")
-  const [isUsernameAvailable, setUsernameAvailable] = React.useState<boolean | null>(
-    null
-  )
-  const [isCheckingAvailability, setIsCheckingAvailability] = React.useState(false)
-  const [availabilityCheckDone, setAvailabilityCheckDone] = React.useState(false)
+  const [isUsernameAvailable, setUsernameAvailable] = React.useState<
+    boolean | null
+  >(null)
+  const [isCheckingAvailability, setIsCheckingAvailability] =
+    React.useState(false)
+  const [availabilityCheckDone, setAvailabilityCheckDone] =
+    React.useState(false)
   const [publishToMarketplace, setPublishToMarketplace] = React.useState(false)
   const [tags, setTags] = React.useState("")
 
@@ -86,6 +90,10 @@ export default function Header({
   }
 
   const handleDeploySubmit = async () => {
+    const supabase = createRouteHandlerClient({ cookies })
+    const {
+      data: { user },
+    } = await supabase.auth.getSession()
     const deployUrl = `https://bots.pixx.co/add`
     const profilePhoto = agent.avatar === null ? "" : agent.avatar
     const response = await fetch(deployUrl, {
@@ -94,7 +102,7 @@ export default function Header({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email_id: email,
+        email_id: user.email,
         bot_username: preferredBotName,
         api_key: profile.api_key,
         agent_name: agent.name,
@@ -102,7 +110,7 @@ export default function Header({
         profile: profilePhoto,
         agent_id: agent.id,
         tags: tags,
-        publish: publishToMarketplace
+        publish: publishToMarketplace,
       }),
     })
 
@@ -190,63 +198,61 @@ export default function Header({
         </AlertDialogContent>
       </AlertDialog>
       <Dialog>
-              <DialogTrigger asChild>
-                <Button size="sm" variant="secondary">
-                  Deploy
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Deploy your bot</DialogTitle>
-                  <DialogDescription>
-                    Enter your preferred bot name and deploy it.
-                  </DialogDescription>
-                </DialogHeader>
-                <Input
-                  value={preferredBotName}
-                  onChange={(e) => setPreferredBotName(e.target.value)}
-                  placeholder="Preferred bot name"
-                  disabled={isCheckingAvailability}
-                />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleCheckUsernameAvailability}
-                  disabled={
-                    isCheckingAvailability || preferredBotName.trim() === ""
-                  }
-                >
-                  Check Availability
-                </Button>
-                <DialogHeader>
-                  <DialogTitle>Publish to Marketplace</DialogTitle>
-                </DialogHeader>
-                <Input
-                  type="checkbox"
-                  defaultChecked={publishToMarketplace}
-                  onChange={() => setPublishToMarketplace(!publishToMarketplace) }
-                />
-                <Input
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="Tags"
-                />
-                {availabilityCheckDone &&
-                  (isUsernameAvailable ? (
-                    <p>Username is available!</p>
-                  ) : (
-                    <p>Username is not available. Try another one.</p>
-                  ))}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleDeploySubmit}
-                  disabled={!isUsernameAvailable}
-                >
-                  Deploy
-                </Button>
-              </DialogContent>
-            </Dialog>
+        <DialogTrigger asChild>
+          <Button size="sm" variant="secondary">
+            Deploy
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Deploy your bot</DialogTitle>
+            <DialogDescription>
+              Enter your preferred bot name and deploy it.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            value={preferredBotName}
+            onChange={(e) => setPreferredBotName(e.target.value)}
+            placeholder="Preferred bot name"
+            disabled={isCheckingAvailability}
+          />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleCheckUsernameAvailability}
+            disabled={isCheckingAvailability || preferredBotName.trim() === ""}
+          >
+            Check Availability
+          </Button>
+          <DialogHeader>
+            <DialogTitle>Publish to Marketplace</DialogTitle>
+          </DialogHeader>
+          <Input
+            type="checkbox"
+            defaultChecked={publishToMarketplace}
+            onChange={() => setPublishToMarketplace(!publishToMarketplace)}
+          />
+          <Input
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="Tags"
+          />
+          {availabilityCheckDone &&
+            (isUsernameAvailable ? (
+              <p>Username is available!</p>
+            ) : (
+              <p>Username is not available. Try another one.</p>
+            ))}
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleDeploySubmit}
+            disabled={!isUsernameAvailable}
+          >
+            Deploy
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
