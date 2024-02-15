@@ -6,8 +6,6 @@ import { TbCode, TbTrash } from "react-icons/tb"
 
 import { Profile } from "@/types/profile"
 import { Api } from "@/lib/api"
-import { cookies } from "next/headers"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,9 +34,10 @@ import { useEditableField } from "@/components/hooks/"
 interface HeaderProps {
   profile: Profile
   workflow: Workflow
+  email: any
 }
 
-const Header = ({ profile, workflow }: HeaderProps) => {
+const Header = ({ profile, workflow, email }: HeaderProps) => {
   const router = useRouter()
   const api = new Api(profile.api_key)
   const [open, setOpen] = useState<boolean>(false)
@@ -81,10 +80,6 @@ const Header = ({ profile, workflow }: HeaderProps) => {
   }
 
   const handleDeploySubmit = async () => {
-    const supabase = createRouteHandlerClient({ cookies })
-    const {
-      data: { user },
-    } = await supabase.auth.getSession()
     const deployUrl = `https://bots.pixx.co/add/workflows`
     const response = await fetch(deployUrl, {
       method: "POST",
@@ -93,7 +88,7 @@ const Header = ({ profile, workflow }: HeaderProps) => {
       },
       body: JSON.stringify({
         api_key: profile.api_key,
-        email_id: user.email,
+        email_id: email,
         bot_username: preferredBotName,
         workflow_name: workflow.name,
         workflow_description: workflow.description,

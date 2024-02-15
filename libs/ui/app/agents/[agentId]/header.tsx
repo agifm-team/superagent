@@ -8,8 +8,6 @@ import { TbTrash } from "react-icons/tb"
 
 import { Profile } from "@/types/profile"
 import { Api } from "@/lib/api"
-import { cookies } from "next/headers"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -90,10 +88,7 @@ export default function Header({
   }
 
   const handleDeploySubmit = async () => {
-    const supabase = createRouteHandlerClient({ cookies })
-    const {
-      data: { user },
-    } = await supabase.auth.getSession()
+
     const deployUrl = `https://bots.pixx.co/add`
     const profilePhoto = agent.avatar === null ? "" : agent.avatar
     const response = await fetch(deployUrl, {
@@ -102,7 +97,7 @@ export default function Header({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email_id: user.email,
+        email_id: email,
         bot_username: preferredBotName,
         api_key: profile.api_key,
         agent_name: agent.name,
