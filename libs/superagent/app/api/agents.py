@@ -353,7 +353,7 @@ async def update(
                     metadata = await assistant.update_assistant(assistant_id, body)
 
         new_agent_data = {
-            **body.dict(exclude_unset=True),
+            **body.dict(exclude_unset=True, exclude={'llms'}),
         }
 
         if json.dumps(metadata) != json.dumps(agent.metadata):

@@ -9,9 +9,6 @@ LLM_MAPPING = {
     "GPT_4_1106_PREVIEW": "gpt-4-1106-preview",
     "GPT_4_TURBO_PREVIEW": "gpt-4-turbo-preview",
     "GPT_3_5_TURBO_0125": "gpt-3.5-turbo-0125",
-}
-
-OPENROUTER_MAPPING = {
     "NOUS_CAPYBARA_7B": "nousresearch/nous-capybara-7b",
     "MISTRAL_7B_INSTRUCT": "mistralai/mistral-7b-instruct",
     "ZEPHYR_7B_BETA": "huggingfaceh4/zephyr-7b-beta",
@@ -32,6 +29,7 @@ OPENROUTER_MAPPING = {
     "NOUS_HERMES_2_VISION_7B": "nousresearch/nous-hermes-2-vision-7b",
     "LLAMA_2_13B_CHAT": "meta-llama/llama-2-13b-chat"
 }
+
 
 LLM_REVERSE_MAPPING = {v: k for k, v in LLM_MAPPING.items()}
 
