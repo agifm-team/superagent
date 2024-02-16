@@ -497,6 +497,19 @@ export const siteConfig = {
         },
       ],
     },
+    {
+      disabled: false,
+      formDescription: "Please enter your Openrouter API key.",
+      provider: "OPENROUTER",
+      name: "OpenRouter",
+      metadata: [
+        {
+          key: "apiKey",
+          type: "input",
+          label: "Openrouter API Key",
+        },
+      ],
+    },
   ],
   vectorDbs: [
     {

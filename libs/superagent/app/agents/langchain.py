@@ -147,15 +147,15 @@ class LangchainAgent(AgentBase):
         if agent_llm.llm.provider == "OPENROUTER":
             return ChatOpenAI(
                 model=OPENROUTER_MAPPING[model],
+                openai_api_base="https://openrouter.ai/api/v1",
                 default_headers={
                     "HTTP-Referer": "https://pixx.co", # Optional, for including your app on openrouter.ai rankings.
-                    "X-Title": "AgiSpace", #Optional. Shows in rankings on openrouter.ai.
+                    "X-Title": "Pixxels", #Optional. Shows in rankings on openrouter.ai.
                 },
                 openai_api_key=agent_llm.llm.apiKey,
                 temperature=0,
                 streaming=self.enable_streaming,
-                callbacks=[self.callback] if self.enable_streaming else [],
-                **(agent_llm.llm.options if agent_llm.llm.options else {}),
+                callbacks=[self.callback] if self.enable_streaming else []
             )
         if agent_llm.llm.provider == "AZURE_OPENAI":
             return AzureChatOpenAI(
