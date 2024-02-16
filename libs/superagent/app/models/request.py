@@ -43,6 +43,7 @@ class AgentUpdate(BaseModel):
     initialMessage: Optional[str]
     prompt: Optional[str]
     llmModel: Optional[str]
+    llms: Optional[LLMProvider]
     description: Optional[str]
     avatar: Optional[str]
     type: Optional[str]
