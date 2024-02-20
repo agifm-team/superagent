@@ -91,10 +91,11 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
         email_id: email,
         bot_username: preferredBotName,
         workflow_name: workflow.name,
-        workflow_description: workflow.description,
+        workflow_desc: workflow.description,
         workflow_id: workflow.id,
         tags: tags,
         publish: publishToMarketplace,
+        profile: ""
       }),
     })
 
