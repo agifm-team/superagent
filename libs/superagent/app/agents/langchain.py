@@ -168,7 +168,7 @@ class LangchainAgent(AgentBase):
                 openai_api_key=agent_llm.llm.apiKey,
                 temperature=0,
                 streaming=self.enable_streaming,
-                callbacks=[self.callback] if self.enable_streaming else []
+                callbacks=self.callbacks
             )
         if agent_llm.llm.provider == "AZURE_OPENAI":
             return AzureChatOpenAI(
