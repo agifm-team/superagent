@@ -363,10 +363,15 @@ async def update(
         if new_agent_data.get("metadata"):
             new_agent_data["metadata"] = json.dumps(new_agent_data["metadata"])
 
-        old_llm_model = agent.llmModel or agent.metadata.get("model")
-        new_llm_model = body.llmModel or (
-            body.metadata.get("model") if body.metadata else None
-        )
+        old_llm_model = agent.llmModel
+        new_llm_model = LLM_MAPPING.get(body.llmModel)
+
+        if not old_llm_model:
+            old_llm_model = agent.metadata.get("model")
+
+        if not new_llm_model and body.metadata:
+            new_llm_model = body.metadata.get("model")
+
         if old_llm_model and new_llm_model and old_llm_model != new_llm_model:
             from app.utils.llm import get_llm_provider
 
@@ -538,14 +543,15 @@ async def invoke(
 
             if "intermediate_steps" in result:
                 for step in result["intermediate_steps"]:
-                    agent_action_message_log = step[0]
+                    (agent_action_message_log, tool_response) = step
                     function = agent_action_message_log.tool
                     args = agent_action_message_log.tool_input
                     if function and args:
                         yield (
                             "event: function_call\n"
                             f'data: {{"function": "{function}", '
-                            f'"args": {json.dumps(args)}}}\n\n'
+                            f'"args": {json.dumps(args)}, '
+                            f'"response": {json.dumps(tool_response)}}}\n\n'
                         )
         except Exception as error:
             logger.error(f"Error in send_message: {error}")

@@ -3,6 +3,8 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field, validator
 
+from prisma.enums import LLMProvider
+
 
 class SuperragEncoderType(str, Enum):
     openai = "openai"
@@ -72,9 +74,9 @@ class ToolModel(BaseModel):
     metaphor: Optional[Tool]
     function: Optional[Tool]
     # ~~~~~~Assistants as tools~~~~~~
-    superagent: Optional["AgentTool"]
-    openai_assistant: Optional["AgentTool"]
-    llm: Optional["AssistantTool"]
+    superagent: Optional["SuperagentAgentTool"]
+    openai_assistant: Optional["OpenAIAgentTool"]
+    llm: Optional["LLMAgentTool"]
 
     # OpenAI Assistant tools
     code_interpreter: Optional[Tool]
@@ -92,21 +94,35 @@ class Assistant(BaseModel):
     intro: Optional[str]
 
 
-class Agent(Assistant):
+# ~~~Agents~~~
+class SuperagentAgent(Assistant):
     tools: Optional[Tools]
-    data: Optional[Data]
+    data: Optional[Data] = Field(description="Deprecated! Use `superrag` instead.")
     superrag: Optional[Superrag]
 
 
-class BaseAssistantToolModel(BaseModel):
-    use_for: str
+class LLMAgent(Assistant):
+    tools: Optional[Tools]
+    superrag: Optional[Superrag]
 
 
-class AgentTool(BaseAssistantToolModel, Agent):
+class OpenAIAgent(Assistant):
     pass
 
 
-class AssistantTool(BaseAssistantToolModel, Assistant):
+class BaseAgentToolModel(BaseModel):
+    use_for: str
+
+
+class SuperagentAgentTool(BaseAgentToolModel, SuperagentAgent):
+    pass
+
+
+class OpenAIAgentTool(BaseAgentToolModel, OpenAIAgent):
+    pass
+
+
+class LLMAgentTool(BaseAgentToolModel, LLMAgent):
     pass
 
 
@@ -114,11 +130,21 @@ class AssistantTool(BaseAssistantToolModel, Assistant):
 # for assistant as tools
 ToolModel.update_forward_refs()
 
+SAML_OSS_LLM_PROVIDERS = [
+    LLMProvider.PERPLEXITY.value,
+    LLMProvider.TOGETHER_AI.value,
+]
+
 
 class Workflow(BaseModel):
-    superagent: Optional[Agent]
-    openai_assistant: Optional[Assistant]
-    llm: Optional[Assistant]
+    superagent: Optional[SuperagentAgent]
+    openai_assistant: Optional[OpenAIAgent]
+    # ~~OSS LLM providers~~
+    perplexity: Optional[LLMAgent]
+    together_ai: Optional[LLMAgent]
+    llm: Optional[LLMAgent] = Field(
+        description="Deprecated! Use LLM providers instead. e.g. `perplexity` or `together_ai`"
+    )
 
 
 class WorkflowConfigModel(BaseModel):

@@ -43,7 +43,7 @@ LLM_PROVIDER_MAPPING = {
         "GPT_4_0613",
         "GPT_4_32K_0613",
         "GPT_4_1106_PREVIEW",
-        "GPT_4_TURBO_PREIVEW",
+        "GPT_4_TURBO_PREVIEW",
     ],
     "OPENROUTER": [
         "NOUS_CAPYBARA_7B",

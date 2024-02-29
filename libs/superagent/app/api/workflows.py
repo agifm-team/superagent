@@ -263,8 +263,11 @@ async def invoke(
                         yield f"id: {workflow_step['agent_name']}\ndata: {token}\n\n"
 
                 await task
-                workflow_result = task.result()
+                exception = task.exception()
+                if exception:
+                    raise exception
 
+                workflow_result = task.result()
                 for index, workflow_step in enumerate(workflow_steps):
                     workflow_step_result = workflow_result.get("steps")[index]
 
@@ -273,22 +276,20 @@ async def invoke(
 
                     if "intermediate_steps" in workflow_step_result:
                         for step in workflow_step_result["intermediate_steps"]:
-                            agent_action_message_log = step[0]
+                            (agent_action_message_log, tool_response) = step
                             function = agent_action_message_log.tool
                             args = agent_action_message_log.tool_input
                             if function and args:
                                 yield (
                                     "event: function_call\n"
                                     f'data: {{"function": "{function}", '
-                                    f'"args": {json.dumps(args)}}}\n\n'
+                                    f'"step_name": "{workflow_step["agent_name"]}", '
+                                    f'"args": {json.dumps(args)}, '
+                                    f'"response": {json.dumps(tool_response)}}}\n\n'
                                 )
 
             except Exception as error:
-                yield (
-                    f"id: {workflow_step['agent_name']}\n"
-                    f"event: error\n"
-                    f"data: {error}\n\n"
-                )
+                yield (f"event: error\n" f"data: {error}\n\n")
 
                 if SEGMENT_WRITE_KEY:
                     for workflow_step in workflow_data.steps:
