@@ -1,3 +1,4 @@
+# flake8: noqa
 from enum import Enum
 from typing import Any, Optional
 
@@ -11,8 +12,12 @@ class SuperragEncoderType(str, Enum):
 
 
 class SuperragEncoder(BaseModel):
-    type: SuperragEncoderType
-    name: str
+    type: SuperragEncoderType = Field(
+        description="The provider of encoder to use for the index. e.g. `openai`"
+    )
+    name: str = Field(
+        description="The model name to use for the encoder. e.g. `text-embedding-3-small` for OpenAI's model"
+    )
     dimensions: int
 
 
@@ -133,6 +138,7 @@ ToolModel.update_forward_refs()
 SAML_OSS_LLM_PROVIDERS = [
     LLMProvider.PERPLEXITY.value,
     LLMProvider.TOGETHER_AI.value,
+    LLMProvider.ANTHROPIC.value,
 ]
 
 
@@ -142,6 +148,7 @@ class Workflow(BaseModel):
     # ~~OSS LLM providers~~
     perplexity: Optional[LLMAgent]
     together_ai: Optional[LLMAgent]
+    anthropic: Optional[LLMAgent]
     llm: Optional[LLMAgent] = Field(
         description="Deprecated! Use LLM providers instead. e.g. `perplexity` or `together_ai`"
     )

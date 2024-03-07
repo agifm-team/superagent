@@ -1,8 +1,8 @@
 openapi: 3.0.2
 info:
   title: Superagent
-  description: The Open Source AI Assistant Framework & API
-  version: 0.2.12
+  description: 🥷 Run AI-agents with an API
+  version: 0.2.16
 servers:
   - url: https://api.pixx.co
 paths:
@@ -1754,9 +1754,6 @@ components:
       description: An enumeration.
     LLMParams:
       title: LLMParams
-      required:
-        - max_tokens
-        - temperature
       type: object
       properties:
         max_tokens:
@@ -1765,6 +1762,7 @@ components:
         temperature:
           title: Temperature
           type: number
+          default: 0.5
     LLMProvider:
       title: LLMProvider
       enum:
@@ -1773,6 +1771,7 @@ components:
         - HUGGINGFACE
         - PERPLEXITY
         - TOGETHER_AI
+        - ANTHROPIC
         - OPENROUTER
       type: string
       description: An enumeration.
