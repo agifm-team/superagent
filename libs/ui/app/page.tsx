@@ -112,6 +112,32 @@ export default function IndexPage() {
       <div className="flex flex-col space-y-0">
         <p className="text-lg font-bold">Login to Superagent</p>
       </div>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-4"
+        >
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input placeholder="Enter your email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" size="sm" className="w-full">
+            {form.control._formState.isSubmitting ? (
+              <Spinner />
+            ) : (
+              "Send password"
+            )}
+          </Button>
+        </form>
+      </Form>
       <Separator />
       <Button
         variant="secondary"
