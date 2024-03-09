@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useForm } from "react-hook-form"
-import { useSearchParams } from 'next/navigation'
-import { FaGoogle } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa"
 import * as z from "zod"
 
 import { Api } from "@/lib/api"
@@ -35,7 +35,7 @@ export default function IndexPage() {
   const supabase = createClientComponentClient()
   const { toast } = useToast()
   const searchParams = useSearchParams()
-  const email = searchParams.get('email')
+  const email = searchParams.get("email")
   const { ...form } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,16 +44,18 @@ export default function IndexPage() {
   })
 
   async function onSubmit() {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-    })
-
-    if (error) {
-      toast({
-        description: `Ooops! ${error?.message}`,
+    if (email) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
       })
 
-      return
+      if (error) {
+        toast({
+          description: `Ooops! ${error?.message}`,
+        })
+
+        return
+      }
     }
 
     toast({
