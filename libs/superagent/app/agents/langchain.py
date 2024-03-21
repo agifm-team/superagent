@@ -1,7 +1,6 @@
 import datetime
 import json
 import re
-from typing import Any, List
 
 from decouple import config
 from langchain.agents import AgentType, initialize_agent
@@ -63,9 +62,9 @@ def recursive_json_loads(data):
 class LangchainAgent(AgentBase):
     async def _get_tools(
         self,
-        agent_datasources: List[AgentDatasource],
-        agent_tools: List[AgentTool],
-    ) -> List:
+        agent_datasources: list[AgentDatasource],
+        agent_tools: list[AgentTool],
+    ) -> list:
         tools = []
         for agent_datasource in agent_datasources:
             tool_type = (
@@ -87,6 +86,10 @@ class LangchainAgent(AgentBase):
                         if agent_datasource.datasource.vectorDb
                         else None
                     ),
+                    # TODO: This will be removed in v0.3
+                    # This is for the users who wants to
+                    # use Azure both for LLM and embeddings
+                    "embeddings_model_provider": self.agent_config.llms[0].llm.provider,
                     "query_type": "document",
                 }
                 if tool_type == DatasourceTool
@@ -103,10 +106,15 @@ class LangchainAgent(AgentBase):
         for agent_tool in agent_tools:
             agent_tool_metadata = json.loads(agent_tool.tool.metadata or "{}")
 
-            # user id is added to the metadata for superrag tool
             agent_tool_metadata = {
-                "user_id": self.agent_config.apiUserId,
                 **agent_tool_metadata,
+                "params": {
+                    **(agent_tool_metadata.get("params", {}) or {}),
+                    # user id is added to the metadata for superrag tool
+                    "user_id": self.agent_config.apiUserId,
+                    # session id is added to the metadata for agent as tool
+                    "session_id": self.session_id,
+                },
             }
 
             tool_info = TOOL_TYPE_MAPPING.get(agent_tool.tool.type)
@@ -132,30 +140,33 @@ class LangchainAgent(AgentBase):
                     description=agent_tool.tool.description,
                     metadata=metadata,
                     args_schema=tool_info["schema"],
-                    session_id=(
-                        f"{self.agent_id}-{self.session_id}"
-                        if self.session_id
-                        else f"{self.agent_id}"
-                    ),
                     return_direct=agent_tool.tool.returnDirect,
                 )
             tools.append(tool)
         return tools
 
-    async def _get_llm(self, llm: LLM, model: str) -> Any:
-        llm_params = {
-            "temperature": 0,
-            **(self.llm_params.dict() if self.llm_params else {}),
+    def get_llm_params(self):
+        llm = self.agent_config.llms[0].llm
+        params = self.llm_params.dict() if self.llm_params else {}
+
+        options = {
+            **(self.agent_config.metadata or {}),
+            **(llm.options or {}),
+            **(params),
+        }
+        return {
+            "temperature": options.get("temperature", 0.1),
+            "max_tokens": options.get("max_tokens"),
         }
 
+    async def _get_llm(self, llm: LLM, agent: Agent):
         if llm.provider == "OPENAI":
             return ChatOpenAI(
-                model=LLM_MAPPING[model],
+                model=LLM_MAPPING[agent.llmModel],
                 openai_api_key=llm.apiKey,
                 streaming=self.enable_streaming,
                 callbacks=self.callbacks,
-                **(llm.options if llm.options else {}),
-                **(llm_params),
+                **self.get_llm_params(),
             )
         if llm.provider == "OPENROUTER":
             return ChatOpenAI(
@@ -175,8 +186,7 @@ class LangchainAgent(AgentBase):
                 api_key=llm.apiKey,
                 streaming=self.enable_streaming,
                 callbacks=self.callbacks,
-                **(llm.options if llm.options else {}),
-                **(llm_params),
+                **self.get_llm_params(),
             )
 
     async def _get_prompt(self, agent: Agent) -> str:
@@ -206,16 +216,18 @@ class LangchainAgent(AgentBase):
             content = f"{content}" f"\n\n{datetime.datetime.now().strftime('%Y-%m-%d')}"
         return SystemMessage(content=content)
 
-    async def _get_memory(self) -> List:
+    async def _get_memory(
+        self,
+    ) -> None | MotorheadMemory | ConversationBufferWindowMemory:
+        # if memory is already set, in the main agent base class, return it
+        if not self.session_id:
+            raise ValueError("Session ID is required to initialize memory")
+
         memory_type = config("MEMORY", "motorhead")
         if memory_type == "redis":
             memory = ConversationBufferWindowMemory(
                 chat_memory=RedisChatMessageHistory(
-                    session_id=(
-                        f"{self.agent_id}-{self.session_id}"
-                        if self.session_id
-                        else f"{self.agent_id}"
-                    ),
+                    session_id=self.session_id,
                     url=config("REDIS_MEMORY_URL", "redis://localhost:6379/0"),
                     key_prefix="superagent:",
                 ),
@@ -226,11 +238,7 @@ class LangchainAgent(AgentBase):
             )
         else:
             memory = MotorheadMemory(
-                session_id=(
-                    f"{self.agent_id}-{self.session_id}"
-                    if self.session_id
-                    else f"{self.agent_id}"
-                ),
+                session_id=self.session_id,
                 memory_key="chat_history",
                 url=config("MEMORY_API_URL"),
                 return_messages=True,
@@ -241,7 +249,7 @@ class LangchainAgent(AgentBase):
 
     async def get_agent(self):
         llm = await self._get_llm(
-            llm=self.agent_config.llms[0].llm, model=self.agent_config.llmModel
+            llm=self.agent_config.llms[0].llm, agent=self.agent_config
         )
         tools = await self._get_tools(
             agent_datasources=self.agent_config.datasources,

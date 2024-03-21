@@ -10,6 +10,7 @@ import * as z from "zod"
 
 import { Api } from "@/lib/api"
 import { analytics } from "@/lib/segment"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -114,6 +115,13 @@ export default function IndexPage() {
   return (
     <section className="container flex h-screen max-w-md flex-col justify-center space-y-8">
       <Logo width={50} height={50} />
+      <Alert>
+        <AlertTitle>Heads up!</AlertTitle>
+        <AlertDescription>
+          Use the authentication method you used the first time you signed up,
+          either email or Github. Using both will result in duplicate accounts.
+        </AlertDescription>
+      </Alert>
       <div className="flex flex-col space-y-0">
         <p className="text-lg font-bold">Logging in to Superagent</p>
       </div>

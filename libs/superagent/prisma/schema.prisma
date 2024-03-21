@@ -78,6 +78,7 @@ enum ToolType {
   FUNCTION
   HTTP
   SUPERRAG
+  RESEARCH
 }
 
 enum DatasourceType {

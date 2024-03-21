@@ -6,6 +6,7 @@ from typing import Any, AsyncIterator, List, Literal, Tuple, Union, cast
 
 from decouple import config
 from langchain.callbacks.base import AsyncCallbackHandler
+from langchain.schema.agent import AgentFinish
 from langchain.schema.output import LLMResult
 from langfuse import Langfuse
 from litellm import cost_per_token, token_counter
@@ -21,6 +22,7 @@ class CustomAsyncIteratorCallbackHandler(AsyncCallbackHandler):
     done: asyncio.Event
 
     TIMEOUT_SECONDS = 30
+    is_stream_started = False
 
     @property
     def always_verbose(self) -> bool:
@@ -30,15 +32,19 @@ class CustomAsyncIteratorCallbackHandler(AsyncCallbackHandler):
         self.queue = asyncio.Queue(maxsize=5)
         self.done = asyncio.Event()
 
-    async def on_chat_model_start(
-        self,
-        *args: Any,  # noqa
-        **kwargs: Any,  # noqa
-    ) -> None:
-        """Run when LLM starts running."""
-        pass
+    async def on_agent_finish(self, finish: AgentFinish, **_: Any) -> Any:
+        """Run on agent end."""
+        # This is for the tools whose return_direct property is set to True
+        if not self.is_stream_started:
+            output = finish.return_values["output"]
+            for token in output.split("\n"):
+                await self.on_llm_new_token(token + "\n")
 
-    async def on_llm_start(self) -> None:
+            while not self.queue.empty():
+                await asyncio.sleep(0.1)
+            self.done.set()
+
+    async def on_llm_start(self, *_: Any, **__: Any) -> None:
         # If two calls are made in a row, this resets the state
         self.done.clear()
 
@@ -86,7 +92,7 @@ class CustomAsyncIteratorCallbackHandler(AsyncCallbackHandler):
 
             if token_or_done is True:
                 continue
-
+            self.is_stream_started = True
             yield token_or_done
 
 
@@ -136,7 +142,7 @@ class CostCalcAsyncHandler(AsyncCallbackHandler):
 def get_session_tracker_handler(
     workflow_id,
     agent_id,
-    req_session_id,
+    session_id,
     user_id,
 ):
     langfuse_secret_key = config("LANGFUSE_SECRET_KEY", "")
@@ -150,11 +156,8 @@ def get_session_tracker_handler(
             host=langfuse_host,
             sdk_integration="Superagent",
         )
-        trace_id = (
-            f"{workflow_id}-{req_session_id}" if req_session_id else f"{workflow_id}"
-        )
         trace = langfuse.trace(
-            id=trace_id,
+            id=session_id,
             name="Workflow",
             tags=[agent_id],
             metadata={"agentId": agent_id, "workflowId": workflow_id},

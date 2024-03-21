@@ -1,7 +1,8 @@
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from openai.types.beta.assistant_create_params import Tool as OpenAiAssistantTool
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from prisma.enums import AgentType, LLMProvider, VectorDbProvider
 
@@ -66,6 +67,18 @@ class LLMParams(BaseModel):
     max_tokens: Optional[int]
     temperature: Optional[float] = 0.5
 
+    @validator("max_tokens")
+    def max_tokens_greater_than_1(v):
+        if v < 1:
+            raise ValueError("max_tokens must be greater than 1")
+        return v
+
+    @validator("temperature")
+    def temperature_between_0_and_2(v):
+        if v < 0 or v > 2:
+            raise ValueError("temperature must be between 0 and 2")
+        return v
+
 
 class AgentInvoke(BaseModel):
     input: str
@@ -73,6 +86,11 @@ class AgentInvoke(BaseModel):
     enableStreaming: bool
     outputSchema: Optional[str]
     llm_params: Optional[LLMParams]
+
+
+class EmbeddingsModelProvider(str, Enum):
+    OPENAI = "OPENAI"
+    AZURE_OPENAI = "AZURE_OPENAI"
 
 
 class Datasource(BaseModel):
@@ -83,6 +101,9 @@ class Datasource(BaseModel):
     url: Optional[str]
     metadata: Optional[Dict[Any, Any]]
     vectorDbId: Optional[str]
+    embeddingsModelProvider: Optional[
+        EmbeddingsModelProvider
+    ] = EmbeddingsModelProvider.OPENAI
 
 
 class DatasourceUpdate(BaseModel):

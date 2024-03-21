@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Any, Optional
 
 from pydantic import BaseModel, Field, validator
+from app.models.request import LLMParams
 
 from prisma.enums import LLMProvider
 
@@ -79,6 +80,7 @@ class ToolModel(BaseModel):
     algolia: Optional[Tool]
     metaphor: Optional[Tool]
     function: Optional[Tool]
+    research: Optional[Tool]
     # ~~~~~~Assistants as tools~~~~~~
     superagent: Optional["SuperagentAgentTool"]
     openai_assistant: Optional["OpenAIAgentTool"]
@@ -98,6 +100,7 @@ class Assistant(BaseModel):
     llm: str
     prompt: str
     intro: Optional[str]
+    params: Optional[LLMParams]
 
 
 # ~~~Agents~~~
