@@ -26,6 +26,7 @@ class SuperragDatabaseProvider(str, Enum):
     pinecone = "pinecone"
     weaviate = "weaviate"
     qdrant = "qdrant"
+    pgvector = "pgvector"
 
 
 class SuperragIndex(BaseModel):
@@ -85,6 +86,7 @@ class ToolModel(BaseModel):
     superagent: Optional["SuperagentAgentTool"]
     openai_assistant: Optional["OpenAIAgentTool"]
     llm: Optional["LLMAgentTool"]
+    scraper: Optional[Tool]
 
     # OpenAI Assistant tools
     code_interpreter: Optional[Tool]
