@@ -91,8 +91,6 @@ class FunctionInput(BaseModel):
 
 
 class HTTPInput(BaseModel):
-    url: Optional[str] = None
-    method: Optional[str] = None
     body: Optional[dict] = {}
 
 
@@ -102,3 +100,7 @@ class TavilyInput(BaseModel):
 
 class ScraperInput(BaseModel):
     url: str
+
+
+class GoogleSearchInput(BaseModel):
+    query: str
