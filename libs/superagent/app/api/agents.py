@@ -393,7 +393,7 @@ async def update(
         async with aiohttp.ClientSession() as session:
             await session.post(
                 f'https://bots.pixx.co/bots/update?agent_id={agent_id}',
-                json=body.dict()
+                json=body.dict(include={'name','description','avatar','prompt', 'llmModel'})
             )
         data.metadata = json.dumps(data.metadata)
 
