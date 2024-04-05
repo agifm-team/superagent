@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Superagent
   description: 🥷 Run AI-agents with an API
-  version: 0.2.24
+  version: 0.2.25
 servers:
   - url: https://api.pixx.co
 paths:
@@ -1628,6 +1628,9 @@ components:
         metadata:
           title: Metadata
           type: object
+        outputSchema:
+          title: Outputschema
+          type: string
     ApiKeyCreate:
       title: ApiKeyCreate
       required:
@@ -1874,6 +1877,7 @@ components:
         - RESEARCH
         - GITHUB
         - SCRAPER
+        - GOOGLE_SEARCH
       type: string
       description: An enumeration.
     ToolUpdate:
@@ -1991,6 +1995,11 @@ components:
         sessionId:
           title: Sessionid
           type: string
+        outputSchemas:
+          title: Outputschemas
+          type: object
+          additionalProperties:
+            type: string
     WorkflowList:
       title: WorkflowList
       required:
@@ -2088,7 +2097,7 @@ components:
         description:
           title: Description
           type: string
-          default: An helpful agent.
+          default: a helpful agent.
         avatar:
           title: Avatar
           type: string
@@ -2101,6 +2110,9 @@ components:
         metadata:
           title: Metadata
           type: object
+        outputSchema:
+          title: Outputschema
+          type: string
     app__models__request__AgentDatasource:
       title: AgentDatasource
       required:
@@ -2240,7 +2252,7 @@ components:
         description:
           title: Description
           type: string
-          default: An helpful tool.
+          default: a helpful tool.
         type:
           title: Type
           type: string
@@ -2474,6 +2486,9 @@ components:
           title: Metadata
           type: string
           format: json-string
+        outputSchema:
+          title: Outputschema
+          type: string
       description: Represents a Agent record
     prisma__models__AgentDatasource:
       title: AgentDatasource
