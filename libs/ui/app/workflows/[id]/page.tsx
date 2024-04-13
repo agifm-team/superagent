@@ -25,7 +25,7 @@ export default async function Assistant({
   const { data: llms } = await api.getLLMs()
 
   return workflow ? (
-    <WorkflowDetail workflow={workflow} profile={profile} llms={llms} />
+    <WorkflowDetail workflow={workflow} profile={profile} llms={llms} email={user?.email} />
   ) : (
     <div className="flex flex-1 flex-col items-center justify-center">
       <p className="text-sm font-medium">No assistant selected</p>

@@ -20,7 +20,17 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks"
 
 type Mode = "view" | "edit"
@@ -28,13 +38,89 @@ type Mode = "view" | "edit"
 export default function Header({
   agent,
   profile,
+  email,
 }: {
   agent: Agent
   profile: Profile
+  email: String | undefined
 }) {
   const api = new Api(profile.api_key)
   const router = useRouter()
+
+  const { toast } = useToast()
+
   const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
+  const [preferredBotName, setPreferredBotName] = React.useState("")
+  const [isUsernameAvailable, setUsernameAvailable] = React.useState<
+    boolean | null
+  >(null)
+  const [isCheckingAvailability, setIsCheckingAvailability] =
+    React.useState(false)
+  const [availabilityCheckDone, setAvailabilityCheckDone] =
+    React.useState(false)
+  const [publishToMarketplace, setPublishToMarketplace] = React.useState(false)
+  const [tags, setTags] = React.useState("")
+
+  const handleCheckUsernameAvailability = async () => {
+    setIsCheckingAvailability(true)
+    setAvailabilityCheckDone(false)
+    setUsernameAvailable(null) // Reset availability status
+
+    try {
+      const response = await fetch(
+        `https://matrix.pixx.co/_matrix/client/v3/register/available?username=${preferredBotName}`
+      )
+
+      // Set availability based on response status
+      if (response.status === 200) {
+        setUsernameAvailable(true)
+      } else if (response.status === 400) {
+        setUsernameAvailable(false)
+      }
+    } catch (error) {
+      toast({
+        description: "An error occurred while checking username availability.",
+      })
+    } finally {
+      setIsCheckingAvailability(false)
+      setAvailabilityCheckDone(true)
+    }
+  }
+
+  const handleDeploySubmit = async () => {
+
+    const deployUrl = `https://bots.pixx.co/add`
+    const profilePhoto = agent.avatar === null ? "" : agent.avatar
+    const response = await fetch(deployUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email_id: email,
+        bot_username: preferredBotName,
+        api_key: profile.api_key,
+        name: agent.name,
+        description: agent.description,
+        profile: profilePhoto,
+        id: agent.id,
+        tags: tags,
+        type: "AGENT",
+        publish: publishToMarketplace,
+      }),
+    })
+
+    // Check response and show toast notification accordingly
+    if (response.ok) {
+      toast({
+        description: "Bot deployed successfully!",
+      })
+    } else {
+      toast({
+        description: "Failed to deploy bot. Please try again.",
+      })
+    }
+  }
 
   const onAgentDelete = async () => {
     await api.deleteAgentById(agent.id)
@@ -107,6 +193,62 @@ export default function Header({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button size="sm" variant="secondary">
+            Deploy
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Deploy your bot</DialogTitle>
+            <DialogDescription>
+              Enter your preferred bot name and deploy it.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            value={preferredBotName}
+            onChange={(e) => setPreferredBotName(e.target.value)}
+            placeholder="Preferred bot name"
+            disabled={isCheckingAvailability}
+          />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleCheckUsernameAvailability}
+            disabled={isCheckingAvailability || preferredBotName.trim() === ""}
+          >
+            Check Availability
+          </Button>
+          <DialogHeader>
+            <DialogTitle>Publish to Marketplace</DialogTitle>
+          </DialogHeader>
+          <Input
+            type="checkbox"
+            defaultChecked={publishToMarketplace}
+            onChange={() => setPublishToMarketplace(!publishToMarketplace)}
+          />
+          <Input
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="Tags"
+          />
+          {availabilityCheckDone &&
+            (isUsernameAvailable ? (
+              <p>Username is available!</p>
+            ) : (
+              <p>Username is not available. Try another one.</p>
+            ))}
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleDeploySubmit}
+            disabled={!isUsernameAvailable}
+          >
+            Deploy
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

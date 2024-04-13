@@ -26,10 +26,12 @@ export default function WorkflowDetail({
   workflow,
   profile,
   llms,
+  email
 }: {
   profile: any
   workflow: any
   llms: any
+  email: any
 }) {
   const router = useRouter()
   const [isLLMModalOpen, setIsLLMModalOpen] = React.useState<boolean>(
@@ -54,7 +56,7 @@ export default function WorkflowDetail({
         description="Before you can start creating your first workflow you need to configure a Language Model from one of the options below."
       />
 
-      <Header workflow={workflow} profile={profile} />
+      <Header workflow={workflow} profile={profile} email={email}/>
 
       <Tabs
         defaultValue="saml"
