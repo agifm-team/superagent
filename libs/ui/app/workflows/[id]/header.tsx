@@ -94,7 +94,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
         description: workflow.description,
         id: workflow.id,
         tags: tags,
-        type: "WORKFLOW"
+        type: "WORKFLOW",
         publish: publishToMarketplace,
         profile: ""
       }),
