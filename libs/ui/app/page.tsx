@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useForm } from "react-hook-form"
-import { RxGithubLogo } from "react-icons/rx"
 import * as z from "zod"
 
 import { Api } from "@/lib/api"
@@ -36,6 +36,8 @@ const supabase = getSupabase()
 
 export default function IndexPage() {
   const { toast } = useToast()
+  const searchParams = useSearchParams()
+  const email = searchParams.get("email")
   const { ...form } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,28 +45,28 @@ export default function IndexPage() {
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { email } = values
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-    })
-
-    if (error) {
-      toast({
-        description: `Ooops! ${error?.message}`,
+  async function onSubmit() {
+    if (email) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
       })
 
-      return
-    }
+      if (error) {
+        toast({
+          description: `Ooops! ${error?.message}`,
+        })
+        return
+      }
 
-    toast({
-      description: "🎉 Yay! Check your email for sign in link.",
-    })
+      toast({
+        description: "🎉 Yay! Check @otp for sign in link.",
+      })
+    }
   }
 
   async function handleGithubLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
+      provider: "google"
     })
 
     if (error) {
@@ -77,6 +79,8 @@ export default function IndexPage() {
   }
 
   useEffect(() => {
+    onSubmit()
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, _session) => {
         if (event === "SIGNED_IN") {
@@ -111,56 +115,10 @@ export default function IndexPage() {
   return (
     <section className="container flex h-screen max-w-md flex-col justify-center space-y-8">
       <Logo width={50} height={50} />
-      <Alert>
-        <AlertTitle>Heads up!</AlertTitle>
-        <AlertDescription>
-          Use the authentication method you used the first time you signed up,
-          either email or Github. Using both will result in duplicate accounts.
-        </AlertDescription>
-      </Alert>
       <div className="flex flex-col space-y-0">
-        <p className="text-lg font-bold">Login to Superagent</p>
-        <p className="text-sm text-muted-foreground">
-          Enter your email to receive a one-time password
-        </p>
+        <p className="text-lg font-bold">Logging in to Superagent</p>
       </div>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-4"
-        >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" size="sm" className="w-full">
-            {form.control._formState.isSubmitting ? (
-              <Spinner />
-            ) : (
-              "Send password"
-            )}
-          </Button>
-        </form>
-      </Form>
-      <Separator />
-
-      <Button
-        variant="secondary"
-        size="sm"
-        className="space-x-4"
-        onClick={handleGithubLogin}
-      >
-        <RxGithubLogo size={20} />
-        <p>Sign in with GitHub</p>
-      </Button>
+      <Spinner />
       <Toaster />
     </section>
   )
