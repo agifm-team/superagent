@@ -1,4 +1,4 @@
-import { VectorDbProvider } from "@/models/models"
+import { LLMProvider, VectorDbProvider } from "@/models/models"
 import {
   TbBrandDiscord,
   TbFileCode,
@@ -10,6 +10,21 @@ import {
 } from "react-icons/tb"
 
 export type SiteConfig = typeof siteConfig
+
+export type LLMForm = {
+  disabled: boolean
+  formDescription: string
+  provider: keyof typeof LLMProvider
+  name: string
+  metadata: {
+    key: string
+    type: "input" | "password" | "json" | "select"
+    label: string
+    helpText?: string
+    json?: Record<string, { type: string; description: string }>
+    options?: { value: string; title: string }[]
+  }[]
+}[]
 
 export const siteConfig = {
   name: "Superagent Cloud",
@@ -249,7 +264,7 @@ export const siteConfig = {
         },
       ],
     },
-     {
+    {
       value: "ADVANCED_SCRAPER",
       title: "Advanced Web extractor",
       metadata: [
@@ -436,7 +451,7 @@ export const siteConfig = {
     {
       disabled: false,
       formDescription: "Please enter your OpenAI API key.",
-      provider: "OPENAI",
+      provider: LLMProvider.OPENAI,
       name: "OpenAI",
       metadata: [
         {
@@ -449,7 +464,7 @@ export const siteConfig = {
     {
       disabled: false,
       formDescription: "Please enter your Perplexity API key.",
-      provider: "PERPLEXITY",
+      provider: LLMProvider.PERPLEXITY,
       name: "Perplexity AI",
       metadata: [
         {
@@ -462,7 +477,7 @@ export const siteConfig = {
     {
       disabled: false,
       formDescription: "Please enter your Together API key.",
-      provider: "TOGETHER_AI",
+      provider: LLMProvider.TOGETHER_AI,
       name: "Together AI",
       metadata: [
         {
@@ -475,7 +490,7 @@ export const siteConfig = {
     {
       disabled: false,
       formDescription: "Please enter your Anthropic API key.",
-      provider: "ANTHROPIC",
+      provider: LLMProvider.ANTHROPIC,
       name: "Anthropic",
       metadata: [
         {
@@ -486,22 +501,32 @@ export const siteConfig = {
       ],
     },
     {
-      disabled: true,
-      formDescription: "Please enter your HF API key.",
-      provider: "HUGGINGFACE",
-      name: "Hugging Face",
+      disabled: false,
+      formDescription: "Please enter your AWS credentials.",
+      provider: LLMProvider.BEDROCK,
+      name: "Amazon Bedrock",
       metadata: [
         {
-          key: "apiKey",
+          key: "options.aws_access_key_id",
           type: "input",
-          label: "HF API Key",
+          label: "AWS Access Key",
+        },
+        {
+          key: "options.aws_secret_access_key",
+          type: "input",
+          label: "AWS Secret Access Key",
+        },
+        {
+          key: "options.aws_region_name",
+          type: "input",
+          label: "AWS Region",
         },
       ],
     },
     {
       disabled: false,
       formDescription: "Please enter your Azure OpenAI API key.",
-      provider: "AZURE_OPENAI",
+      provider: LLMProvider.AZURE_OPENAI,
       name: "Azure OpenAI",
       metadata: [
         {
@@ -526,7 +551,20 @@ export const siteConfig = {
         },
       ],
     },
-  ],
+    // {
+    //   disabled: true,
+    //   formDescription: "Please enter your HF API key.",
+    //   provider: LLMProvider.HUGGINGFACE,
+    //   name: "Hugging Face",
+    //   metadata: [
+    //     {
+    //       key: "apiKey",
+    //       type: "input",
+    //       label: "HF API Key",
+    //     },
+    //   ],
+    // },
+  ] satisfies LLMForm,
   vectorDbs: [
     {
       provider: VectorDbProvider[VectorDbProvider.PINECONE],
