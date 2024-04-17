@@ -5,6 +5,7 @@ import tempfile
 from abc import ABC, abstractmethod
 from typing import AsyncIterable, List, Optional
 
+import aiohttp
 import requests
 import segment.analytics as analytics
 from agentops.langchain_callback_handler import AsyncLangchainCallbackHandler
@@ -389,6 +390,11 @@ async def update(
             where={"id": agent_id},
             data=new_agent_data,
         )
+        async with aiohttp.ClientSession() as session:
+            await session.post(
+                f'https://bots.pixx.co/bots/update?agent_id={agent_id}',
+                json=body.dict(include={'name','description','avatar','prompt', 'llmModel'})
+            )
         data.metadata = json.dumps(data.metadata)
 
         return {"success": True, "data": data}
