@@ -54,6 +54,19 @@ const antrophicSchema = z.object({
   apiKey: z.string().nonempty("API key is required"),
   options: z.object({}),
 })
+
+const groqSchema = z.object({
+  llmType: z.literal(LLMProvider.GROQ),
+  apiKey: z.string().nonempty("API key is required"),
+  options: z.object({}),
+})
+
+const mistralSchema = z.object({
+  llmType: z.literal(LLMProvider.MISTRAL),
+  apiKey: z.string().nonempty("API key is required"),
+  options: z.object({}),
+})
+
 const amazonBedrockSchema = z.object({
   llmType: z.literal(LLMProvider.BEDROCK),
   apiKey: z.literal(""),
@@ -79,6 +92,8 @@ const formSchema = z.discriminatedUnion("llmType", [
   perplexityAiSchema,
   togetherAiSchema,
   antrophicSchema,
+  groqSchema,
+  mistralSchema,
   amazonBedrockSchema,
   azureOpenAiSchema,
 ])
