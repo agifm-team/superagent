@@ -82,6 +82,7 @@ class ToolModel(BaseModel):
     metaphor: Optional[Tool]
     function: Optional[Tool]
     research: Optional[Tool]
+    sec: Optional[Tool]
     # ~~~~~~Assistants as tools~~~~~~
     superagent: Optional["SuperagentAgentTool"]
     openai_assistant: Optional["OpenAIAgentTool"]
@@ -151,6 +152,7 @@ SAML_OSS_LLM_PROVIDERS = [
     LLMProvider.BEDROCK.value,
     LLMProvider.GROQ.value,
     LLMProvider.MISTRAL.value,
+    LLMProvider.COHERE_CHAT.value,
 ]
 
 
@@ -163,6 +165,7 @@ class Workflow(BaseModel):
     bedrock: Optional[LLMAgent]
     groq: Optional[LLMAgent]
     mistral: Optional[LLMAgent]
+    cohere_chat: Optional[LLMAgent] = Field(alias="cohere")
     anthropic: Optional[LLMAgent]
     llm: Optional[LLMAgent] = Field(
         description="Deprecated! Use LLM providers instead. e.g. `perplexity` or `together_ai`"

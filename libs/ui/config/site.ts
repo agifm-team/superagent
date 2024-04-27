@@ -446,6 +446,22 @@ export const siteConfig = {
         },
       ],
     },
+    {
+      value: "SEC",
+      title: "SEC API",
+      metadata: [
+        {
+          key: "identity",
+          type: "input",
+          label: "Identity string",
+        },
+        {
+          key: "form",
+          type: "input",
+          label: "10-K, 10-Q, 8-K etc",
+        },
+      ],
+    },
   ],
   llmForm: [
     {
@@ -546,6 +562,19 @@ export const siteConfig = {
           key: "apiKey",
           type: "input",
           label: "Mistral API Key",
+        },
+      ],
+    },
+    {
+      disabled: false,
+      formDescription: "Please enter your Cohere API key.",
+      provider: LLMProvider.COHERE_CHAT,
+      name: "Cohere",
+      metadata: [
+        {
+          key: "apiKey",
+          type: "input",
+          label: "Cohere API Key",
         },
       ],
     },
