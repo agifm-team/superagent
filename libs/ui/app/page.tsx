@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useForm } from "react-hook-form"
+import { RxGithubLogo } from "react-icons/rx"
+import { SiAuth0 } from "react-icons/si"
 import * as z from "zod"
 
 import { Api } from "@/lib/api"
@@ -66,7 +68,10 @@ export default function IndexPage() {
 
   async function handleGithubLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google"
+      provider: "google",
+      options : {
+        "redirectTo" : "http://localhost:3000"
+      }
     })
 
     if (error) {
@@ -119,6 +124,16 @@ export default function IndexPage() {
         <p className="text-lg font-bold">Logging in to Superagent</p>
       </div>
       <Spinner />
+      <Separator />
+      <Button
+        variant="secondary"
+        size="sm"
+        className="space-x-4"
+        onClick={handleGithubLogin}
+      >
+        <SiAuth0 size={20} />
+        <p>Sign in</p>
+      </Button>
       <Toaster />
     </section>
   )
