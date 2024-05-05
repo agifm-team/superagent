@@ -84,6 +84,10 @@ export default function SAML({
         description: error?.message,
       })
     } else {
+      const yamlSave = await api.saveWorkflow(
+        workflow.id,
+        editorRef?.current?.getValue()
+      )
       router.refresh()
       toast({
         title: "Config saved!",

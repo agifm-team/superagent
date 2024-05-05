@@ -245,6 +245,21 @@ export class Api {
     )
   }
 
+  async saveWorkflow(workflowId: string, payload: any) {
+    // TODO: update fetchFromApi and use it
+    return fetch(
+      `${process.env.NEXT_PUBLIC_BOTS_API_URL}/workflows/${workflowId}/config`,
+      {
+        method: "POST",
+        body: payload,
+        headers: {
+          "Content-Type": "application/x-yaml",
+          authorization: `Bearer ${this.apiKey}`,
+        },
+      }
+    )
+  }
+
   async getWorkflowSteps(id: string) {
     return this.fetchFromApi(`/workflows/${id}/steps`)
   }

@@ -80,7 +80,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
   }
 
   const handleDeploySubmit = async () => {
-    const deployUrl = `https://bots.pixx.co/add`
+    const deployUrl = `${process.env.NEXT_PUBLIC_BOTS_API_URL}/add`
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
