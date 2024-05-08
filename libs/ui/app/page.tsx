@@ -64,7 +64,7 @@ export default function IndexPage() {
     }
   }
 
-  async function handleGithubLogin() {
+  async function handleGoogleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google"
     })
