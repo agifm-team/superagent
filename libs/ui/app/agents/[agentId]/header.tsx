@@ -89,7 +89,7 @@ export default function Header({
 
   const handleDeploySubmit = async () => {
 
-    const deployUrl = `${process.env.NEXT_PUBLIC_BOTS_API_URL}/add`
+    const deployUrl = `https://bots.pixx.co/add`
     const profilePhoto = agent.avatar === null ? "" : agent.avatar
     const response = await fetch(deployUrl, {
       method: "POST",
