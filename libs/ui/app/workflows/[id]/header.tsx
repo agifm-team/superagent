@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Workflow } from "@/models/models"
@@ -30,6 +30,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks/"
+import Avatar from "@/app/agents/[agentId]/avatar"
 
 interface HeaderProps {
   profile: Profile
@@ -43,6 +44,8 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
   const [open, setOpen] = useState<boolean>(false)
 
   const { toast } = useToast()
+
+  const [avatar, setAvatar] = React.useState("/logo.png")
 
   const [preferredBotName, setPreferredBotName] = useState("")
   const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(
@@ -96,7 +99,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
         tags: tags,
         type: "WORKFLOW",
         publish: publishToMarketplace,
-        profile: ""
+        profile: avatar
       }),
     })
 
@@ -119,6 +122,12 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
     })
     router.refresh()
   }
+
+  const handleUpload = React.useCallback(
+    async (url: any) => {
+      setAvatar(url)
+    },
+  )
 
   return (
     <>
@@ -203,6 +212,11 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                   Enter your preferred bot name and deploy it.
                 </DialogDescription>
               </DialogHeader>
+              <center><Avatar
+                accept=".jpg, .jpeg, .png"
+                onSelect={handleUpload}
+                imageUrl={avatar}
+              /></center>
               <Input
                 value={preferredBotName}
                 onChange={(e) => setPreferredBotName(e.target.value)}

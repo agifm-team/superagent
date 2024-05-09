@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks"
+import Avatar from "./avatar"
 
 type Mode = "view" | "edit"
 
@@ -48,6 +49,8 @@ export default function Header({
   const router = useRouter()
 
   const { toast } = useToast()
+
+  const [avatar, setAvatar] = React.useState(agent.avatar || "/logo.png")
 
   const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
   const [preferredBotName, setPreferredBotName] = React.useState("")
@@ -90,7 +93,6 @@ export default function Header({
   const handleDeploySubmit = async () => {
 
     const deployUrl = `https://bots.pixx.co/add`
-    const profilePhoto = agent.avatar === null ? "" : agent.avatar
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
@@ -102,7 +104,7 @@ export default function Header({
         api_key: profile.api_key,
         name: agent.name,
         description: agent.description,
-        profile: profilePhoto,
+        profile: avatar,
         id: agent.id,
         tags: tags,
         type: "AGENT",
@@ -135,6 +137,12 @@ export default function Header({
     await api.patchAgent(agent.id, { name })
     router.refresh()
   }
+
+  const handleUpload = React.useCallback(
+    async (url: any) => {
+      setAvatar(url)
+    },
+  )
 
   return (
     <div className="flex items-center justify-between border-b px-6 py-4">
@@ -206,6 +214,11 @@ export default function Header({
               Enter your preferred bot name and deploy it.
             </DialogDescription>
           </DialogHeader>
+          <center><Avatar
+            accept=".jpg, .jpeg, .png"
+            onSelect={handleUpload}
+            imageUrl={avatar}
+          /></center>
           <Input
             value={preferredBotName}
             onChange={(e) => setPreferredBotName(e.target.value)}
