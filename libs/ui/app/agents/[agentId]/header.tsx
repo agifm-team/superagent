@@ -258,7 +258,7 @@ export default function Header({
             </DialogDescription>
           </DialogHeader>
           <center><Avatar
-            accept=".jpg, .jpeg, .png"
+            accept=".jpg, .jpeg, .png, .gif"
             onSelect={handleUpload}
             imageUrl={avatar}
           /></center>

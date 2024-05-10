@@ -256,7 +256,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                 </DialogDescription>
               </DialogHeader>
               <center><Avatar
-                accept=".jpg, .jpeg, .png"
+                accept=".jpg, .jpeg, .png, .gif"
                 onSelect={handleUpload}
                 imageUrl={avatar}
               /></center>
