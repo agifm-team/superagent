@@ -289,7 +289,9 @@ async def invoke(
                     schema_tokens = ""
 
                     async for token in workflow_step["callbacks"]["streaming"].aiter():
-                        if not output_schema or not stream_complete_token:
+                        if stream_complete_token:
+                            yield token
+                        elif not output_schema:
                             agent_name = workflow_step["agent_name"]
                             async for val in stream_dict_keys(
                                 {
