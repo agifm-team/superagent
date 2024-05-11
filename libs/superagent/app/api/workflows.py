@@ -191,6 +191,7 @@ async def invoke(
     enable_streaming = body.enableStreaming
     output_schemas = body.outputSchemas
     last_output_schema = body.outputSchema
+    stream_complete_token = body.stream_token
 
     workflow_steps = []
     for idx, step in enumerate(workflow_data.steps):
@@ -288,7 +289,7 @@ async def invoke(
                     schema_tokens = ""
 
                     async for token in workflow_step["callbacks"]["streaming"].aiter():
-                        if not output_schema:
+                        if not output_schema or not stream_complete_token:
                             agent_name = workflow_step["agent_name"]
                             async for val in stream_dict_keys(
                                 {
