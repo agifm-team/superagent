@@ -287,6 +287,8 @@ async def invoke(
 
                     # we are not streaming token by token if output schema is set
                     schema_tokens = ""
+                    if stream_complete_token:
+                        yield f'\nworkflow_agent_name:{workflow_step["agent_name"]}\n'
 
                     async for token in workflow_step["callbacks"]["streaming"].aiter():
                         if stream_complete_token:
