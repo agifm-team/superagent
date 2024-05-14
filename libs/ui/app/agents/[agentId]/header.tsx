@@ -32,6 +32,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks"
+import Avatar from "./avatar"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 type Mode = "view" | "edit"
 
@@ -49,6 +51,10 @@ export default function Header({
 
   const { toast } = useToast()
 
+  const [avatar, setAvatar] = React.useState(agent.avatar || "/logo.png")
+  const [selectedCategory, setCategory] = React.useState(undefined)
+  const [tags, setTags] = React.useState("")
+
   const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
   const [preferredBotName, setPreferredBotName] = React.useState("")
   const [isUsernameAvailable, setUsernameAvailable] = React.useState<
@@ -59,7 +65,6 @@ export default function Header({
   const [availabilityCheckDone, setAvailabilityCheckDone] =
     React.useState(false)
   const [publishToMarketplace, setPublishToMarketplace] = React.useState(false)
-  const [tags, setTags] = React.useState("")
 
   const handleCheckUsernameAvailability = async () => {
     setIsCheckingAvailability(true)
@@ -90,7 +95,6 @@ export default function Header({
   const handleDeploySubmit = async () => {
 
     const deployUrl = `https://bots.pixx.co/add`
-    const profilePhoto = agent.avatar === null ? "" : agent.avatar
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
@@ -102,9 +106,10 @@ export default function Header({
         api_key: profile.api_key,
         name: agent.name,
         description: agent.description,
-        profile: profilePhoto,
-        id: agent.id,
+        profile: avatar,
         tags: tags,
+        // category: selectedCategory,
+        id: agent.id,
         type: "AGENT",
         publish: publishToMarketplace,
       }),
@@ -135,6 +140,52 @@ export default function Header({
     await api.patchAgent(agent.id, { name })
     router.refresh()
   }
+
+  const handleUpload = React.useCallback(
+    async (url: any) => {
+      setAvatar(url)
+    },
+  )
+
+  /*
+      DON'T USE THIS! THIS WILL CRASH YOUR COMPUTER!
+
+        <DialogHeader>
+            <DialogTitle>Category</DialogTitle>
+            <DialogDescription>
+              Enter the category that will be associated with your bot.
+            </DialogDescription>
+          </DialogHeader>
+          <Select
+            onValueChange={(cat) => setCategory(cat)}
+            defaultValue={selectedCategory}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select category..." />
+            </SelectTrigger>
+            <SelectContent>
+              {[
+                {
+                  value: 'fun',
+                  label: 'Fun',
+                }, {
+                  value: 'agi',
+                  label: 'AGI',
+                }, {
+                  value: 'work',
+                  label: 'Work',
+                }
+              ].map((tag) => (
+                <SelectItem
+                  key={tag.value}
+                  value={tag.value}
+                >
+                  {tag.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+  */
 
   return (
     <div className="flex items-center justify-between border-b px-6 py-4">
@@ -206,6 +257,11 @@ export default function Header({
               Enter your preferred bot name and deploy it.
             </DialogDescription>
           </DialogHeader>
+          <center><Avatar
+            accept=".jpg, .jpeg, .png, .gif"
+            onSelect={handleUpload}
+            imageUrl={avatar}
+          /></center>
           <Input
             value={preferredBotName}
             onChange={(e) => setPreferredBotName(e.target.value)}
@@ -220,6 +276,18 @@ export default function Header({
           >
             Check Availability
           </Button>
+          
+          <DialogHeader>
+            <DialogTitle>Tags</DialogTitle>
+            <DialogDescription>
+              Enter the tags that will be associated with your bot.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="Tags"
+          />
           <DialogHeader>
             <DialogTitle>Publish to Marketplace</DialogTitle>
           </DialogHeader>
@@ -227,11 +295,6 @@ export default function Header({
             type="checkbox"
             defaultChecked={publishToMarketplace}
             onChange={() => setPublishToMarketplace(!publishToMarketplace)}
-          />
-          <Input
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="Tags"
           />
           {availabilityCheckDone &&
             (isUsernameAvailable ? (
