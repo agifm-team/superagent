@@ -144,7 +144,7 @@ export default function Header({
   const handleUpload = React.useCallback(
     async (url: any) => {
       setAvatar(url)
-    },
+    }, []
   )
 
   /*

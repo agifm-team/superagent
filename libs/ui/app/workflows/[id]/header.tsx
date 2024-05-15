@@ -129,7 +129,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
   const handleUpload = React.useCallback(
     async (url: any) => {
       setAvatar(url)
-    },
+    }, []
   )
 
   /*
