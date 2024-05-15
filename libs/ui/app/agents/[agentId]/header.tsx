@@ -141,11 +141,12 @@ export default function Header({
     router.refresh()
   }
 
-  const handleUpload = React.useCallback(
-    async (url: any) => {
-      setAvatar(url)
-    },
-  )
+  // const handleUpload = React.useCallback(
+  //   async (url: any) => {
+  //     setAvatar(url)
+  //   },
+  //   [form]
+  // )
 
   /*
       DON'T USE THIS! THIS WILL CRASH YOUR COMPUTER!
@@ -257,11 +258,11 @@ export default function Header({
               Enter your preferred bot name and deploy it.
             </DialogDescription>
           </DialogHeader>
-          <center><Avatar
+          {/* <center><Avatar
             accept=".jpg, .jpeg, .png, .gif"
             onSelect={handleUpload}
             imageUrl={avatar}
-          /></center>
+          /></center> */}
           <Input
             value={preferredBotName}
             onChange={(e) => setPreferredBotName(e.target.value)}
@@ -276,7 +277,7 @@ export default function Header({
           >
             Check Availability
           </Button>
-          
+
           <DialogHeader>
             <DialogTitle>Tags</DialogTitle>
             <DialogDescription>

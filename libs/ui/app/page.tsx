@@ -129,7 +129,7 @@ export default function IndexPage() {
         variant="secondary"
         size="sm"
         className="space-x-4"
-        onClick={handleGithubLogin}
+        onClick={handleGoogleLogin}
       >
         <SiAuth0 size={20} />
         <p>Sign in</p>

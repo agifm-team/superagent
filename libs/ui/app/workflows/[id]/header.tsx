@@ -126,11 +126,12 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
     router.refresh()
   }
 
-  const handleUpload = React.useCallback(
-    async (url: any) => {
-      setAvatar(url)
-    },
-  )
+  // const handleUpload = React.useCallback(
+  //   async (url: any) => {
+  //     setAvatar(url)
+  //   },
+  //   [form],
+  // )
 
   /*
       DON'T USE THIS! THIS WILL CRASH YOUR COMPUTER!
@@ -255,11 +256,11 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                   Enter your preferred bot name and deploy it.
                 </DialogDescription>
               </DialogHeader>
-              <center><Avatar
+              {/* <center><Avatar
                 accept=".jpg, .jpeg, .png, .gif"
                 onSelect={handleUpload}
                 imageUrl={avatar}
-              /></center>
+              /></center> */}
               <Input
                 value={preferredBotName}
                 onChange={(e) => setPreferredBotName(e.target.value)}
@@ -276,7 +277,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
               >
                 Check Availability
               </Button>
-              
+
               <DialogHeader>
                 <DialogTitle>Tags</DialogTitle>
                 <DialogDescription>
