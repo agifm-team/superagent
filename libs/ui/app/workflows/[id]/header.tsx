@@ -126,12 +126,11 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
     router.refresh()
   }
 
-  // const handleUpload = React.useCallback(
-  //   async (url: any) => {
-  //     setAvatar(url)
-  //   },
-  //   [form],
-  // )
+  const handleUpload = React.useCallback(
+    async (url: any) => {
+      setAvatar(url)
+    }, []
+  )
 
   /*
       DON'T USE THIS! THIS WILL CRASH YOUR COMPUTER!
