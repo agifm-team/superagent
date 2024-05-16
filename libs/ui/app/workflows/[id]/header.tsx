@@ -255,11 +255,11 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                   Enter your preferred bot name and deploy it.
                 </DialogDescription>
               </DialogHeader>
-              {/* <center><Avatar
+              <center><Avatar
                 accept=".jpg, .jpeg, .png, .gif"
                 onSelect={handleUpload}
                 imageUrl={avatar}
-              /></center> */}
+              /></center>
               <Input
                 value={preferredBotName}
                 onChange={(e) => setPreferredBotName(e.target.value)}
