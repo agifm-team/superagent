@@ -33,7 +33,6 @@ import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { useEditableField } from "@/components/hooks"
 import Avatar from "./avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 type Mode = "view" | "edit"
 
@@ -52,7 +51,7 @@ export default function Header({
   const { toast } = useToast()
 
   const [avatar, setAvatar] = React.useState(agent.avatar || "/logo.png")
-  const [selectedCategory, setCategory] = React.useState(undefined)
+  const [selectedCategory, setCategory] = React.useState<string | null>(null)
   const [tags, setTags] = React.useState("")
 
   const [isDeleteModalOpen, setDeleteModalOpen] = React.useState<boolean>(false)
@@ -108,7 +107,7 @@ export default function Header({
         description: agent.description,
         profile: avatar,
         tags: tags,
-        // category: selectedCategory,
+        category: selectedCategory,
         id: agent.id,
         type: "AGENT",
         publish: publishToMarketplace,
@@ -146,46 +145,6 @@ export default function Header({
       setAvatar(url)
     }, []
   )
-
-  /*
-      DON'T USE THIS! THIS WILL CRASH YOUR COMPUTER!
-
-        <DialogHeader>
-            <DialogTitle>Category</DialogTitle>
-            <DialogDescription>
-              Enter the category that will be associated with your bot.
-            </DialogDescription>
-          </DialogHeader>
-          <Select
-            onValueChange={(cat) => setCategory(cat)}
-            defaultValue={selectedCategory}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select category..." />
-            </SelectTrigger>
-            <SelectContent>
-              {[
-                {
-                  value: 'fun',
-                  label: 'Fun',
-                }, {
-                  value: 'agi',
-                  label: 'AGI',
-                }, {
-                  value: 'work',
-                  label: 'Work',
-                }
-              ].map((tag) => (
-                <SelectItem
-                  key={tag.value}
-                  value={tag.value}
-                >
-                  {tag.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-  */
 
   return (
     <div className="flex items-center justify-between border-b px-6 py-4">
@@ -276,6 +235,36 @@ export default function Header({
           >
             Check Availability
           </Button>
+
+          <DialogHeader>
+            <DialogTitle>Category</DialogTitle>
+            <DialogDescription>
+              Enter the category that will be associated with your bot.
+            </DialogDescription>
+          </DialogHeader>
+
+          <select value={selectedCategory || ''} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50" onChange={(event) => {
+            const value = typeof event.target.value === 'string' && event.target.value !== 'null' ? event.target.value : null;
+            setCategory(value);
+          }}>
+            <option value={'null'}>Select category...</option>
+            {[
+                {
+                  value: 'fun',
+                  label: 'Fun',
+                }, {
+                  value: 'agi',
+                  label: 'AGI',
+                }, {
+                  value: 'work',
+                  label: 'Work',
+                }
+                ].map((tag) => (
+                  <option className="" value={tag.value}>
+                    {tag.label}
+                  </option>
+            ))}
+          </select>
           
           <DialogHeader>
             <DialogTitle>Tags</DialogTitle>
