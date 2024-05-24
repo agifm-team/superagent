@@ -45,7 +45,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
 
   const { toast } = useToast()
 
-  const [avatar, setAvatar] = React.useState("/logo.png")
+  const [avatar, setAvatar] = React.useState("")
   const [selectedCategory, setCategory] = React.useState<string | null>(null)
   const [tags, setTags] = useState("")
 
