@@ -9,6 +9,7 @@ from app.api import (
     tools,
     vector_dbs,
     workflows,
+    bots
 )
 from app.api.workflow_configs import workflow_configs
 
@@ -26,3 +27,4 @@ router.include_router(
     workflow_configs.router, tags=["Workflow Config"], prefix=api_prefix
 )
 router.include_router(vector_dbs.router, tags=["Vector Database"], prefix=api_prefix)
+router.include_router(bots.router, tags=["Bots"], prefix=api_prefix)
