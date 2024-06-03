@@ -1,6 +1,8 @@
 import logging
 import uuid
 
+import aiohttp
+
 import jwt
 from decouple import config
 from fastapi import HTTPException, Security, status
@@ -35,9 +37,30 @@ async def get_admin(
     authorization: HTTPAuthorizationCredentials = Security(security),
 ):
     token = authorization.credentials
-    ADMIN_API_KEY = config("ADMIN_API_KEY",None)
+    ADMIN_API_KEY = config("ADMIN_API_KEY", None)
 
-    api_user = True if token == ADMIN_API_KEY else False
-    if not api_user:
-        raise HTTPException(status_code=401, detail="Invalid token or expired token")
-    return api_user
+    admin_api = True if token == ADMIN_API_KEY else False
+    if not admin_api:
+        raise HTTPException(
+            status_code=401, detail="Invalid token or expired token")
+    return admin_api
+
+
+async def check_access_token(
+        authorization: HTTPAuthorizationCredentials = Security(security),
+):
+    token = authorization.credentials
+    headers = {
+        "Authorization" : f"Bearer {token}"
+    }
+    url = "https://matrix.pixx.co/_matrix/client/v3/account/3pid"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                url=url, headers=headers
+            ) as response:
+                response.raise_for_status()
+                return await response.json()
+    except Exception as e:
+        raise HTTPException(
+            status_code=401, detail=f"{e}")
