@@ -30,24 +30,22 @@ async def get_user_api_key(
     return True
 
 @router.post(
-    "/bots/{access_token}/verify",
+    "/bots/verify",
     name="Verify user",
     description="Verify and get user's api key",
 )
 async def get_user_api_key(
-    email_id: str,
     matrix_user=Depends(check_access_token),
 ):
-    pid_data = matrix_user["threepids"]
-    api_user = False
-    if len(email_id) > 0:
+    try:
+        pid_data = matrix_user["threepids"]
         email_id = pid_data[0]["address"]
-        api_user = await prisma.apiuser.find_unique(
+        api_user = await prisma.apiuser.find_first(
             where={"email": email_id}
         )
-    if api_user:
         {"success": True, "data" : api_user}
-    raise HTTPException(status_code=401, detail="error")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"error: {e}")
 
 
 
