@@ -56,6 +56,8 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
   const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false)
   const [publishToMarketplace, setPublishToMarketplace] = useState(false)
+  const [isStreaming, setStreaming] = useState(false)
+  const [publishSubAgents, setPublishSubAgents] = useState(false)
 
   const handleCheckUsernameAvailability = async () => {
     setIsCheckingAvailability(true)
@@ -101,7 +103,9 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
         category: selectedCategory,
         type: "WORKFLOW",
         publish: publishToMarketplace,
-        profile: avatar
+        profile: avatar,
+        streaming: isStreaming,
+        publish_all : publishSubAgents
       }),
     })
 
@@ -284,6 +288,22 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                 type="checkbox"
                 defaultChecked={publishToMarketplace}
                 onChange={() => setPublishToMarketplace(!publishToMarketplace)}
+              />
+              <DialogHeader>
+                <DialogTitle>Publish Sub Agents</DialogTitle>
+              </DialogHeader>
+              <Input
+                type="checkbox"
+                defaultChecked={publishSubAgents}
+                onChange={() => setPublishSubAgents(!publishSubAgents)}
+              />
+              <DialogHeader>
+                <DialogTitle>Deploy as Single Bot</DialogTitle>
+              </DialogHeader>
+              <Input
+                type="checkbox"
+                defaultChecked={isStreaming}
+                onChange={() => setStreaming(!isStreaming)}
               />
               {availabilityCheckDone &&
                 (isUsernameAvailable ? (

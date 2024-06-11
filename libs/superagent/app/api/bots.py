@@ -26,8 +26,8 @@ async def get_user_api_key(
         where={"email": email_id}
     )
     if api_user:
-        {"success": True, "data" : api_user}
-    return True
+        return {"success": True, "data" : api_user}
+    raise HTTPException(status_code=401, detail="error")
 
 @router.post(
     "/bots/verify",
@@ -43,7 +43,7 @@ async def get_user_api_key(
         api_user = await prisma.apiuser.find_first(
             where={"email": email_id}
         )
-        {"success": True, "data" : api_user}
+        return {"success": True, "data" : api_user}
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"error: {e}")
 
