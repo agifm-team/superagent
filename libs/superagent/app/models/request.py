@@ -154,6 +154,7 @@ class WorkflowInvoke(BaseModel):
     input: str
     enableStreaming: bool
     sessionId: Optional[str]
+    personalApiKey: Optional[dict[str, str]]
     outputSchemas: Optional[dict[str, str]] = Field(default_factory=dict)
     stream_token: Optional[bool]
     """A dictionary of step_id to output_schema 
