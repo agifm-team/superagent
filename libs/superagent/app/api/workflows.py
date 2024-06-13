@@ -205,6 +205,20 @@ async def invoke(
                 "tools": {"include": {"tool": True}},
             },
         )
+        if body.userEmail:
+            api_user = await prisma.apiuser.find_first(
+                where={
+                    "email" : body.userEmail
+                },
+                include={
+                    "llms" : {"include" : {"llm" : True}}
+                }
+            )
+        if api_user:
+            llm_provider = agent_data.llms[0].llm.provider
+            for llm in api_user.llms:
+                if llm_provider == llm.provider:
+                    agent_data.llms[0].llm.apiKey = llm.apiKey
         output_schema = agent_data.outputSchema
         llm_model = LLM_MAPPING.get(agent_data.llmModel)
         metadata = agent_data.metadata or {}
