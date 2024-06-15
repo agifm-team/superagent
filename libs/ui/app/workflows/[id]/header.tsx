@@ -105,7 +105,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
         publish: publishToMarketplace,
         profile: avatar,
         streaming: isStreaming,
-        publish_all : publishSubAgents
+        publish_all: publishSubAgents
       }),
     })
 
@@ -190,8 +190,8 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently delete
                   your account and remove your data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
@@ -211,7 +211,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                 Deploy
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-screen overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Deploy your bot</DialogTitle>
                 <DialogDescription>
