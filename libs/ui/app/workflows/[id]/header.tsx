@@ -190,8 +190,8 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently delete
                   your account and remove your data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
@@ -281,30 +281,39 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                 onChange={(e) => setTags(e.target.value)}
                 placeholder="Tags"
               />
-              <DialogHeader>
-                <DialogTitle>Publish to Marketplace</DialogTitle>
-              </DialogHeader>
-              <Input
-                type="checkbox"
-                defaultChecked={publishToMarketplace}
-                onChange={() => setPublishToMarketplace(!publishToMarketplace)}
-              />
-              <DialogHeader>
-                <DialogTitle>Publish Sub Agents</DialogTitle>
-              </DialogHeader>
-              <Input
-                type="checkbox"
-                defaultChecked={publishSubAgents}
-                onChange={() => setPublishSubAgents(!publishSubAgents)}
-              />
-              <DialogHeader>
-                <DialogTitle>Deploy as Single Bot</DialogTitle>
-              </DialogHeader>
-              <Input
-                type="checkbox"
-                defaultChecked={isStreaming}
-                onChange={() => setStreaming(!isStreaming)}
-              />
+              <div className="flex items-center">
+                <DialogHeader>
+                  <DialogTitle>Publish to Marketplace</DialogTitle>
+                </DialogHeader>
+                <Input
+                  type="checkbox"
+                  defaultChecked={publishToMarketplace}
+                  onChange={() => setPublishToMarketplace(!publishToMarketplace)}
+                  className="ml-2"
+                />
+              </div>
+              <div className="flex items-center">
+                <DialogHeader>
+                  <DialogTitle>Publish Sub Agents</DialogTitle>
+                </DialogHeader>
+                <Input
+                  type="checkbox"
+                  defaultChecked={publishSubAgents}
+                  onChange={() => setPublishSubAgents(!publishSubAgents)}
+                  className="ml-2"
+                />
+              </div>
+              <div className="flex items-center">
+                <DialogHeader>
+                  <DialogTitle>Deploy as Single Bot</DialogTitle>
+                </DialogHeader>
+                <Input
+                  type="checkbox"
+                  defaultChecked={isStreaming}
+                  onChange={() => setStreaming(!isStreaming)}
+                  className="ml-2"
+                />
+              </div>
               {availabilityCheckDone &&
                 (isUsernameAvailable ? (
                   <p>Username is available!</p>
