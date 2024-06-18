@@ -46,6 +46,23 @@ async def get_user_api_key(
         return {"success": True, "data" : api_user}
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"error: {e}")
+    
+
+@router.post(
+    "/bots/{agent_id}/intro",
+    name="intro", 
+    description="get a agent's intro message",
+)
+async def get_user_api_key(
+    agent_id: str
+):
+    agent_info = await prisma.agent.find_unique(
+        where={"id": agent_id}
+    )
+    if agent_info:
+        return {"success": True, "data" : agent_info}
+    raise HTTPException(status_code=401, detail="error")
+
 
 
 
