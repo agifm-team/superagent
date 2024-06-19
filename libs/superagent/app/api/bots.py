@@ -60,7 +60,7 @@ async def get_user_api_key(
         where={"id": agent_id}
     )
     if agent_info:
-        return {"success": True, "data" : agent_info}
+        return {"success": True, "data" : agent_info.initialMessage}
     raise HTTPException(status_code=401, detail="error")
 
 
