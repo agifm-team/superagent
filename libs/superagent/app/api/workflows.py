@@ -211,7 +211,7 @@ async def invoke(
                     "email" : body.userEmail
                 },
                 include={
-                    "llms" : {"include" : {"llm" : True}}
+                    "llms" : True
                 }
             )
             provider_setup = False
