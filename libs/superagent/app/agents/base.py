@@ -13,7 +13,7 @@ from prisma.models import LLM, Agent
 
 class LLMParams(BaseModel):
     temperature: Optional[float] = 0.1
-    max_tokens: Optional[int]
+    max_tokens: Optional[int] = None
     aws_access_key_id: Optional[str] = None
     aws_secret_access_key: Optional[str] = None
     aws_region_name: Optional[str] = None

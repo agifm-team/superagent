@@ -2,7 +2,7 @@
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import field_validator, BaseModel, Field
 from app.models.request import LLMParams
 
 from prisma.enums import LLMProvider
@@ -34,14 +34,15 @@ class SuperragIndex(BaseModel):
     urls: list[str]
     use_for: str
     encoder: Optional[SuperragEncoder] = Field(
-        description="The encoder to use for the index"
+        None, description="The encoder to use for the index"
     )
     database_provider: Optional[SuperragDatabaseProvider] = Field(
-        description="The vector database provider to use for the index"
+        None, description="The vector database provider to use for the index"
     )
     interpreter_mode: Optional[bool] = False
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def name_too_long(v):
         MAX_LENGTH = 24
         if len(v) > MAX_LENGTH:
@@ -52,7 +53,7 @@ class SuperragIndex(BaseModel):
 
 
 class SuperragItem(BaseModel):
-    index: Optional[SuperragIndex]
+    index: Optional[SuperragIndex] = None
 
 
 class Superrag(BaseModel):
@@ -67,33 +68,33 @@ class Data(BaseModel):
 class Tool(BaseModel):
     name: str
     use_for: str
-    metadata: Optional[dict[str, Any]]
+    metadata: Optional[dict[str, Any]] = None
 
 
 class ToolModel(BaseModel):
     # ~~~~~~Superagent tools~~~~~~
-    browser: Optional[Tool]
-    code_executor: Optional[Tool]
-    hand_off: Optional[Tool]
-    http: Optional[Tool]
-    bing_search: Optional[Tool]
-    replicate: Optional[Tool]
-    algolia: Optional[Tool]
-    metaphor: Optional[Tool]
-    function: Optional[Tool]
-    research: Optional[Tool]
-    sec: Optional[Tool]
+    browser: Optional[Tool] = None
+    code_executor: Optional[Tool] = None
+    hand_off: Optional[Tool] = None
+    http: Optional[Tool] = None
+    bing_search: Optional[Tool] = None
+    replicate: Optional[Tool] = None
+    algolia: Optional[Tool] = None
+    metaphor: Optional[Tool] = None
+    function: Optional[Tool] = None
+    research: Optional[Tool] = None
+    sec: Optional[Tool] = None
     # ~~~~~~Assistants as tools~~~~~~
-    superagent: Optional["SuperagentAgentTool"]
-    openai_assistant: Optional["OpenAIAgentTool"]
-    llm: Optional["LLMAgentTool"]
-    scraper: Optional[Tool]
-    advanced_scraper: Optional[Tool]
-    google_search: Optional[Tool]
+    superagent: Optional["SuperagentAgentTool"] = None
+    openai_assistant: Optional["OpenAIAgentTool"] = None
+    llm: Optional["LLMAgentTool"] = None
+    scraper: Optional[Tool] = None
+    advanced_scraper: Optional[Tool] = None
+    google_search: Optional[Tool] = None
 
     # OpenAI Assistant tools
-    code_interpreter: Optional[Tool]
-    retrieval: Optional[Tool]
+    code_interpreter: Optional[Tool] = None
+    retrieval: Optional[Tool] = None
 
 
 class Tools(BaseModel):
@@ -104,21 +105,21 @@ class Assistant(BaseModel):
     name: str
     llm: str
     prompt: str
-    intro: Optional[str]
-    params: Optional[LLMParams]
-    output_schema: Optional[Any]
+    intro: Optional[str] = None
+    params: Optional[LLMParams] = None
+    output_schema: Optional[Any] = None
 
 
 # ~~~Agents~~~
 class SuperagentAgent(Assistant):
-    tools: Optional[Tools]
-    data: Optional[Data] = Field(description="Deprecated! Use `superrag` instead.")
-    superrag: Optional[Superrag]
+    tools: Optional[Tools] = None
+    data: Optional[Data] = Field(None, description="Deprecated! Use `superrag` instead.")
+    superrag: Optional[Superrag] = None
 
 
 class LLMAgent(Assistant):
-    tools: Optional[Tools]
-    superrag: Optional[Superrag]
+    tools: Optional[Tools] = None
+    superrag: Optional[Superrag] = None
 
 
 class OpenAIAgent(Assistant):
@@ -157,24 +158,26 @@ SAML_OSS_LLM_PROVIDERS = [
 
 
 class Workflow(BaseModel):
-    superagent: Optional[SuperagentAgent]
-    openai_assistant: Optional[OpenAIAgent]
+    superagent: Optional[SuperagentAgent] = None
+    openai_assistant: Optional[OpenAIAgent] = None
     # ~~OSS LLM providers~~
-    perplexity: Optional[LLMAgent]
-    together_ai: Optional[LLMAgent]
-    bedrock: Optional[LLMAgent]
-    groq: Optional[LLMAgent]
-    mistral: Optional[LLMAgent]
-    cohere_chat: Optional[LLMAgent]
-    anthropic: Optional[LLMAgent]
+    perplexity: Optional[LLMAgent] = None
+    together_ai: Optional[LLMAgent] = None
+    bedrock: Optional[LLMAgent] = None
+    groq: Optional[LLMAgent] = None
+    mistral: Optional[LLMAgent] = None
+    cohere_chat: Optional[LLMAgent] = None
+    anthropic: Optional[LLMAgent] = None
     llm: Optional[LLMAgent] = Field(
-        description="Deprecated! Use LLM providers instead. e.g. `perplexity` or `together_ai`"
+        None, description="Deprecated! Use LLM providers instead. e.g. `perplexity` or `together_ai`"
     )
 
 
 class WorkflowConfigModel(BaseModel):
-    workflows: list[Workflow] = Field(..., min_items=1)
+    workflows: list[Workflow] = Field(..., min_length=1)
 
+    # TODO[pydantic]: We couldn't refactor this class, please create the `model_config` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
     class Config:
         @staticmethod
         def schema_extra(schema: dict[str, Any]) -> None:

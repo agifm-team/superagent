@@ -2,17 +2,17 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from openai.types.beta.assistant_create_params import Tool as OpenAiAssistantTool
-from pydantic import BaseModel, Field, validator
+from pydantic import field_validator, BaseModel, Field
 
 from prisma.enums import AgentType, LLMProvider, VectorDbProvider
 
 
 class ApiUser(BaseModel):
     email: str
-    firstName: Optional[str]
-    lastName: Optional[str]
-    company: Optional[str]
-    anonymousId: Optional[str]
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    company: Optional[str] = None
+    anonymousId: Optional[str] = None
 
 
 class ApiKey(BaseModel):
@@ -20,37 +20,37 @@ class ApiKey(BaseModel):
 
 
 class OpenAiAssistantParameters(BaseModel):
-    metadata: Optional[Dict[str, Any]]
-    fileIds: Optional[List[str]]
-    tools: Optional[List[OpenAiAssistantTool]]
+    metadata: Optional[Dict[str, Any]] = None
+    fileIds: Optional[List[str]] = None
+    tools: Optional[List[OpenAiAssistantTool]] = None
 
 
 class Agent(BaseModel):
     isActive: Optional[bool] = True
     name: str
-    initialMessage: Optional[str]
-    prompt: Optional[str]
-    llmModel: Optional[str]
-    llmProvider: Optional[LLMProvider]
+    initialMessage: Optional[str] = None
+    prompt: Optional[str] = None
+    llmModel: Optional[str] = None
+    llmProvider: Optional[LLMProvider] = None
     description: Optional[str] = "a helpful agent."
-    avatar: Optional[str]
+    avatar: Optional[str] = None
     type: Optional[AgentType] = AgentType.SUPERAGENT
-    parameters: Optional[OpenAiAssistantParameters]
-    metadata: Optional[dict]
-    outputSchema: Optional[str]
+    parameters: Optional[OpenAiAssistantParameters] = None
+    metadata: Optional[dict] = None
+    outputSchema: Optional[str] = None
 
 
 class AgentUpdate(BaseModel):
-    isActive: Optional[bool]
-    name: Optional[str]
-    initialMessage: Optional[str]
-    prompt: Optional[str]
-    llmModel: Optional[str]
-    description: Optional[str]
-    avatar: Optional[str]
-    type: Optional[str]
-    metadata: Optional[Dict[str, Any]]
-    outputSchema: Optional[str]
+    isActive: Optional[bool] = None
+    name: Optional[str] = None
+    initialMessage: Optional[str] = None
+    prompt: Optional[str] = None
+    llmModel: Optional[str] = None
+    description: Optional[str] = None
+    avatar: Optional[str] = None
+    type: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+    outputSchema: Optional[str] = None
 
 
 class AgentLLM(BaseModel):
@@ -62,16 +62,18 @@ class AgentDatasource(BaseModel):
 
 
 class LLMParams(BaseModel):
-    max_tokens: Optional[int]
+    max_tokens: Optional[int] = None
     temperature: Optional[float] = 0.5
 
-    @validator("max_tokens")
+    @field_validator("max_tokens")
+    @classmethod
     def max_tokens_greater_than_1(v):
         if v < 1:
             raise ValueError("max_tokens must be greater than 1")
         return v
 
-    @validator("temperature")
+    @field_validator("temperature")
+    @classmethod
     def temperature_between_0_and_2(v):
         if v < 0 or v > 2:
             raise ValueError("temperature must be between 0 and 2")
@@ -80,10 +82,10 @@ class LLMParams(BaseModel):
 
 class AgentInvoke(BaseModel):
     input: str
-    sessionId: Optional[str]
+    sessionId: Optional[str] = None
     enableStreaming: bool
-    outputSchema: Optional[str]
-    llm_params: Optional[LLMParams]
+    outputSchema: Optional[str] = None
+    llm_params: Optional[LLMParams] = None
 
 
 class EmbeddingsModelProvider(str, Enum):
@@ -93,41 +95,41 @@ class EmbeddingsModelProvider(str, Enum):
 
 class Datasource(BaseModel):
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
     type: str
-    content: Optional[str]
-    url: Optional[str]
-    metadata: Optional[Dict[Any, Any]]
-    vectorDbId: Optional[str]
+    content: Optional[str] = None
+    url: Optional[str] = None
+    metadata: Optional[Dict[Any, Any]] = None
+    vectorDbId: Optional[str] = None
     embeddingsModelProvider: Optional[
         EmbeddingsModelProvider
     ] = EmbeddingsModelProvider.OPENAI
 
 
 class DatasourceUpdate(BaseModel):
-    name: Optional[str]
-    description: Optional[str]
-    type: Optional[str]
-    content: Optional[str]
-    url: Optional[str]
-    metadata: Optional[Dict[Any, Any]]
-    vectorDbId: Optional[str]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    type: Optional[str] = None
+    content: Optional[str] = None
+    url: Optional[str] = None
+    metadata: Optional[Dict[Any, Any]] = None
+    vectorDbId: Optional[str] = None
 
 
 class Tool(BaseModel):
     name: str
     description: Optional[str] = "a helpful tool."
     type: str
-    metadata: Optional[Dict[Any, Any]]
+    metadata: Optional[Dict[Any, Any]] = None
     returnDirect: Optional[bool] = False
 
 
 class ToolUpdate(BaseModel):
-    name: Optional[str]
-    description: Optional[str]
-    type: Optional[str]
-    metadata: Optional[Dict[Any, Any]]
-    returnDirect: Optional[bool]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    type: Optional[str] = None
+    metadata: Optional[Dict[Any, Any]] = None
+    returnDirect: Optional[bool] = None
 
 
 class AgentTool(BaseModel):
@@ -137,7 +139,7 @@ class AgentTool(BaseModel):
 class LLM(BaseModel):
     provider: str
     apiKey: str
-    options: Optional[Dict]
+    options: Optional[Dict] = None
 
 
 class Workflow(BaseModel):
@@ -153,10 +155,10 @@ class WorkflowStep(BaseModel):
 class WorkflowInvoke(BaseModel):
     input: str
     enableStreaming: bool
-    sessionId: Optional[str]
-    userEmail: Optional[str]
+    sessionId: Optional[str] = None
+    userEmail: Optional[str] = None
     outputSchemas: Optional[dict[str, str]] = Field(default_factory=dict)
-    stream_token: Optional[bool]
+    stream_token: Optional[bool] = None
     """A dictionary of step_id to output_schema 
         
         Example:
@@ -167,7 +169,7 @@ class WorkflowInvoke(BaseModel):
         }
         ```
     """
-    outputSchema: Optional[str]
+    outputSchema: Optional[str] = None
     """The output schema that will be used for only the final output, 
     if output schema for last step is defined in outputSchemas, 
     it will be used instead of this one."""
