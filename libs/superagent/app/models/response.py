@@ -39,7 +39,7 @@ from prisma.models import (
 
 class ApiUser(BaseModel):
     success: bool
-    data: Optional[ApiUserModel] = None
+    data: Optional[ApiUserModel]
 
 
 class _ApiKeyCreateModel(ApiKeyModel):
@@ -48,118 +48,118 @@ class _ApiKeyCreateModel(ApiKeyModel):
 
 class ApiKeyCreate(BaseModel):
     success: bool
-    data: Optional[_ApiKeyCreateModel] = None
+    data: Optional[_ApiKeyCreateModel]
 
 
 class ApiKey(BaseModel):
     success: bool
-    data: Optional[ApiKeyModel] = None
+    data: Optional[ApiKeyModel]
 
 
 class ApiKeyList(BaseModel):
     success: bool
-    data: Optional[list[ApiKeyModel]] = None
+    data: Optional[list[ApiKeyModel]]
 
 
 class Agent(BaseModel):
     success: bool
-    data: Optional[AgentModel] = None
+    data: Optional[AgentModel]
 
 
 class AgentDatasource(BaseModel):
     success: bool
-    data: Optional[AgentDatasourceModel] = None
+    data: Optional[AgentDatasourceModel]
 
 
 class AgentDatasosurceList(BaseModel):
     success: bool
-    data: Optional[List[AgentDatasourceModel]] = None
+    data: Optional[List[AgentDatasourceModel]]
 
 
 class AgentRunList(BaseModel):
     success: bool
-    data: Optional[List[dict]] = None
+    data: Optional[List[dict]]
 
 
 class AgentTool(BaseModel):
     success: bool
-    data: Optional[AgentToolModel] = None
+    data: Optional[AgentToolModel]
 
 
 class AgentToolList(BaseModel):
     success: bool
-    data: Optional[List[AgentToolModel]] = None
+    data: Optional[List[AgentToolModel]]
 
 
 class AgentInvoke(BaseModel):
     success: bool
-    data: Any = None
+    data: Any
 
 
 class Datasource(BaseModel):
     success: bool
-    data: Optional[DatasourceModel] = None
+    data: Optional[DatasourceModel]
 
 
 class DatasourceList(BaseModel):
     success: bool
-    data: Optional[List[DatasourceModel]] = None
+    data: Optional[List[DatasourceModel]]
     total_pages: int
 
 
 class Tool(BaseModel):
     success: bool
-    data: Optional[ToolModel] = None
+    data: Optional[ToolModel]
 
 
 class ToolList(BaseModel):
     success: bool
-    data: Optional[List[ToolModel]] = None
+    data: Optional[List[ToolModel]]
     total_pages: int
 
 
 class AgentList(BaseModel):
     success: bool
-    data: Optional[List[AgentModel]] = None
+    data: Optional[List[AgentModel]]
     total_pages: int
 
 
 class LLM(BaseModel):
     success: bool
-    data: Optional[LLMModel] = None
+    data: Optional[LLMModel]
 
 
 class LLMList(BaseModel):
     success: bool
-    data: Optional[List[LLMModel]] = None
+    data: Optional[List[LLMModel]]
 
 
 class Workflow(BaseModel):
     success: bool
-    data: Optional[WorkflowModel] = None
+    data: Optional[WorkflowModel]
 
 
 class WorkflowStep(BaseModel):
     success: bool
-    data: Optional[WorkflowStepModel] = None
+    data: Optional[WorkflowStepModel]
 
 
 class WorkflowList(BaseModel):
     success: bool
-    data: Optional[List[WorkflowModel]] = None
+    data: Optional[List[WorkflowModel]]
     total_pages: int
 
 
 class WorkflowStepList(BaseModel):
     success: bool
-    data: Optional[List[WorkflowStepModel]] = None
+    data: Optional[List[WorkflowStepModel]]
 
 
 class VectorDb(BaseModel):
     success: bool
-    data: Optional[VectorDbModel] = None
+    data: Optional[VectorDbModel]
 
 
 class VectorDbList(BaseModel):
     success: bool
-    data: Optional[List[VectorDbModel]] = None
+    data: Optional[List[VectorDbModel]]
