@@ -323,19 +323,6 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
               <div className="my-4">
                 <div className="flex items-center">
                   <DialogHeader>
-                    <DialogTitle>Publish Sub Agents</DialogTitle>
-                  </DialogHeader>
-                  <Input
-                    type="checkbox"
-                    defaultChecked={publishSubAgents}
-                    onChange={() => setPublishSubAgents(!publishSubAgents)}
-                    className="ml-2"
-                  />
-                </div>
-              </div>
-              <div className="my-4">
-                <div className="flex items-center">
-                  <DialogHeader>
                     <DialogTitle>Deploy as Single Bot</DialogTitle>
                   </DialogHeader>
                   <Input
