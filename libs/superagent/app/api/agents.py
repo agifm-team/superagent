@@ -441,11 +441,13 @@ async def invoke(
         langfuse_handler = trace.get_langchain_handler()
 
     agentops_api_key = config("AGENTOPS_API_KEY", default=None)
+    agentops_org_key = config("AGENTOPS_ORG_KEY", default=None)
 
     agentops_handler = None
-    if agentops_api_key:
+    if agentops_api_key or agentops_org_key:
         agentops_handler = AsyncLangchainCallbackHandler(
             api_key=agentops_api_key,
+            org_key=agentops_org_key,
             tags=[agent_id, session_id],
         )
 
