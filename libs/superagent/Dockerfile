@@ -1,4 +1,4 @@
-FROM python:3.12.4 AS builder
+FROM python:3.12.3 AS builder
 # Use the python latest image
 WORKDIR /app
 
