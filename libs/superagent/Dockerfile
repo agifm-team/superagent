@@ -1,4 +1,4 @@
-FROM python:3.11 AS builder
+FROM python:3.12.4 AS builder
 # Use the python latest image
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY pyproject.toml poetry.lock ./
 # Install the required packages of the application into .venv
 RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
-FROM python:3.11 AS runtime
+FROM python:3.12.4 AS runtime
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y curl ca-certificates gnupg netcat-openbsd && \
