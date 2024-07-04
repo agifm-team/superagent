@@ -67,6 +67,12 @@ const mistralSchema = z.object({
   options: z.object({}),
 })
 
+const geminiSchema = z.object({
+  llmType: z.literal(LLMProvider.GEMINI),
+  apiKey: z.string().nonempty("API key is required"),
+  options: z.object({}),
+})
+
 const cohereSchema = z.object({
   llmType: z.literal(LLMProvider.COHERE_CHAT),
   apiKey: z.string().nonempty("API key is required"),
@@ -100,6 +106,7 @@ const formSchema = z.discriminatedUnion("llmType", [
   antrophicSchema,
   groqSchema,
   mistralSchema,
+  geminiSchema,
   cohereSchema,
   amazonBedrockSchema,
   azureOpenAiSchema,

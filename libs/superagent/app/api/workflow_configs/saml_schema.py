@@ -153,6 +153,7 @@ SAML_OSS_LLM_PROVIDERS = [
     LLMProvider.GROQ.value,
     LLMProvider.MISTRAL.value,
     LLMProvider.COHERE_CHAT.value,
+    LLMProvider.GEMINI.value,
 ]
 
 
@@ -167,6 +168,7 @@ class Workflow(BaseModel):
     mistral: Optional[LLMAgent]
     cohere_chat: Optional[LLMAgent]
     anthropic: Optional[LLMAgent]
+    gemini: Optional[LLMAgent]
     llm: Optional[LLMAgent] = Field(
         description="Deprecated! Use LLM providers instead. e.g. `perplexity` or `together_ai`"
     )

@@ -27,6 +27,7 @@ enum LLMProvider {
   GROQ
   MISTRAL
   COHERE_CHAT
+  GEMINI
 }
 
 enum LLMModel {

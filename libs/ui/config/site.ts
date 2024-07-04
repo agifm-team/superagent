@@ -571,6 +571,19 @@ export const siteConfig = {
     },
     {
       disabled: false,
+      formDescription: "Please enter your Google Gemini API key.",
+      provider: LLMProvider.GEMINI,
+      name: "Gemini",
+      metadata: [
+        {
+          key: "apiKey",
+          type: "input",
+          label: "Gemini API Key",
+        },
+      ],
+    },
+    {
+      disabled: false,
       formDescription: "Please enter your Cohere API key.",
       provider: LLMProvider.COHERE_CHAT,
       name: "Cohere",
