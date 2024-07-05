@@ -72,7 +72,7 @@ export default function Header({
 
     try {
       const response = await fetch(
-        `https://matrix.pixx.co/_matrix/client/v3/register/available?username=${preferredBotName}`
+        `https://matrix.spaceship.im/_matrix/client/v3/register/available?username=${preferredBotName}`
       )
 
       // Set availability based on response status
@@ -93,7 +93,7 @@ export default function Header({
 
   const handleDeploySubmit = async () => {
 
-    const deployUrl = `https://bots.pixx.co/add`
+    const deployUrl = `https://bots.spaceship.im/add`
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {

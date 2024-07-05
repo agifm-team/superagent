@@ -53,7 +53,7 @@ async def check_access_token(
     headers = {
         "Authorization" : f"Bearer {token}"
     }
-    url = "https://matrix.pixx.co/_matrix/client/v3/account/3pid"
+    url = "https://matrix.spaceship.im/_matrix/client/v3/account/3pid"
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(

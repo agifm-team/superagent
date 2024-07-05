@@ -66,7 +66,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
 
     try {
       const response = await fetch(
-        `https://matrix.pixx.co/_matrix/client/v3/register/available?username=${preferredBotName}`
+        `https://matrix.spaceship.im/_matrix/client/v3/register/available?username=${preferredBotName}`
       );
 
       // Set availability based on response status
@@ -86,7 +86,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
   };
 
   const handleDeploySubmit = async () => {
-    const deployUrl = `https://bots.pixx.co/add`;
+    const deployUrl = `https://bots.spaceship.im/add`;
     const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
@@ -316,6 +316,19 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                     onChange={() =>
                       setPublishToMarketplace(!publishToMarketplace)
                     }
+                    className="ml-2"
+                  />
+                </div>
+              </div>
+              <div className="my-4">
+                <div className="flex items-center">
+                  <DialogHeader>
+                    <DialogTitle>Publish Sub Agents</DialogTitle>
+                  </DialogHeader>
+                  <Input
+                    type="checkbox"
+                    defaultChecked={publishSubAgents}
+                    onChange={() => setPublishSubAgents(!publishSubAgents)}
                     className="ml-2"
                   />
                 </div>
