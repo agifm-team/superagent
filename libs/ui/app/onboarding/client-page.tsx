@@ -50,7 +50,7 @@ export default function OnboardingClientPage() {
       body: JSON.stringify(values),
     })
 
-    const profile = await res.json()
+    const profile = await res.json();
 
     if (!res.ok || !profile) {
       return toast({

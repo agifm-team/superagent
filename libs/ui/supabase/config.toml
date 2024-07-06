@@ -100,11 +100,11 @@ auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 # `twitter`, `slack`, `spotify`, `workos`, `zoom`.
 [auth.external.github]
 enabled = true
-client_id = "env(GITHUB_CLIENT_ID)"
+client_id = "Ov23li97twaMPRxyQxyE"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
-secret = "env(GITHUB_CLIENT_SECRET)"
+secret = "bf91bb5ebbbe7b69f5008b687717cabd8963f7c5"
 # Overrides the default auth redirectUrl.
-redirect_uri = "http://localhost:54321/auth/v1/callback"
+redirect_uri = "https://akivyozlbbsukmrdubxl.supabase.co/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
 # or any other third-party OIDC providers.
 url = ""

@@ -66,9 +66,9 @@ export default function IndexPage() {
     }
   }
 
-  async function handleGoogleLogin() {
+  async function handleGithubLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider: "github",
       options : {
         "redirectTo" : "http://localhost:3000"
       }
@@ -129,7 +129,7 @@ export default function IndexPage() {
         variant="secondary"
         size="sm"
         className="space-x-4"
-        onClick={handleGoogleLogin}
+        onClick={handleGithubLogin}
       >
         <SiAuth0 size={20} />
         <p>Sign in</p>
