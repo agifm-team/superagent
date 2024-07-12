@@ -10,6 +10,7 @@ from decouple import config
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.messages import AIMessage
 from langchain_core.utils.function_calling import convert_to_openai_function
+import litellm
 from litellm import (
     CustomStreamWrapper,
     Message,
@@ -537,7 +538,7 @@ class AgentExecutorOpenAIFunc(LLMAgent):
                     logger.warn(
                         "OpenAI API Key not found in database, using environment variable"
                     )
-
+                litellm.success_callback = ["langfuse"] 
                 res = await acompletion(
                     api_key=openai_api_key,
                     model="gpt-3.5-turbo-0125",
@@ -596,6 +597,7 @@ class AgentExecutorOpenAIFunc(LLMAgent):
                 )
 
             params = self.llm_data.params.dict(exclude_unset=True)
+            litellm.success_callback = ["langfuse"]
             second_res = await acompletion(
                 api_key=self.llm_data.llm.apiKey,
                 model=self.llm_data.model,
