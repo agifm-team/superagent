@@ -344,7 +344,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                         type="radio"
                         name="agentType"
                         value="single-agent"
-                        checked={agentType === "single-agent"}
+                        checked={isStreaming}
                         onChange={() => setStreaming(true)}
                       />
                       <span className="ml-2">Single Agent - send all workflow responses as one agent</span>
@@ -354,7 +354,7 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                         type="radio"
                         name="agentType"
                         value="multi-agent"
-                        checked={agentType === "multi-agent"}
+                        checked={!isStreaming}
                         onChange={() => setStreaming(false)}
                       />
                       <span className="ml-2">Multi-Agent - send all workflow responses as separate agents</span>
