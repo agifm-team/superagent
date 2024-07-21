@@ -336,14 +336,30 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
               <div className="my-4">
                 <div className="flex items-center">
                   <DialogHeader>
-                    <DialogTitle>Deploy as Single Bot</DialogTitle>
+                    <DialogTitle>Deploy as Agent Type</DialogTitle>
                   </DialogHeader>
-                  <Input
-                    type="checkbox"
-                    defaultChecked={isStreaming}
-                    onChange={() => setStreaming(!isStreaming)}
-                    className="ml-2"
-                  />
+                  <div className="flex flex-col ml-2">
+                    <label className="flex items-center">
+                      <Input
+                        type="radio"
+                        name="agentType"
+                        value="single-agent"
+                        checked={agentType === "single-agent"}
+                        onChange={() => setStreaming(true)}
+                      />
+                      <span className="ml-2">Single Agent - send all workflow responses as one agent</span>
+                    </label>
+                    <label className="flex items-center mt-2">
+                      <Input
+                        type="radio"
+                        name="agentType"
+                        value="multi-agent"
+                        checked={agentType === "multi-agent"}
+                        onChange={() => setStreaming(false)}
+                      />
+                      <span className="ml-2">Multi-Agent - send all workflow responses as separate agents</span>
+                    </label>
+                  </div>
                 </div>
               </div>
               <Button
