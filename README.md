@@ -16,10 +16,6 @@
 <img alt="Discord" src="https://img.shields.io/discord/1110910277110743103?label=Discord&logo=discord&logoColor=white&style=plastic&color=d7b023)](https://discord.gg/e8j7mgjDUK" />
 </p>
 
-<p>Backed by:</p>
-<img width="150px" src="https://asset.brandfetch.io/idKhWTXUYD/idkQv7L0Mm.svg?updated=1668020996653" alt="Backed by YCombinator" />
-</div>
-
 -----
 
 <p align="center">
@@ -70,14 +66,138 @@ Superagent lets you build any AI application/microservice you want, including:
 - Support for proprietary and open-source LLMs
 - API concurrency support
 
+## 🛠️ Run locally:
+
+Clone the Superagent repository into a public GitHub repository or Fork it from [https://github.com/homanp/superagent/fork](https://github.com/homanp/superagent/fork). 
+
+If you plan to distribute the code, keep the source code public.
+
+Both the API and UI require a database in order to work. We recommend setting this up on Supabase. 
+
+<details>
+<summary>Setting up Supabase</summary>
+
+Create a [Supabase](https://supabase.com) account and project. 
+We have separated the UI and API into two separate Supabase projects, which is recommended since the app runs on `prisma`.
+
+**Supabase setup for Superagent UI project:**
+
+1. Run the migrations (checkout Superagent UI section for this)
+    ```sh
+    supabase migration up (locally)
+    supabase db push (cloud)
+    ```
+2. Run the following query to setup authentication:
+    ```sh
+    -- inserts a row into public.profiles
+    create function public.handle_new_user()
+    returns trigger
+    language plpgsql
+    security definer set search_path = public
+    as $$
+    begin
+    insert into public.profiles (user_id)
+    values (new.id);
+    return new;
+    end;
+    $$;
+
+    -- trigger the function every time a user is created,
+    create trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute procedure public.handle_new_user();
+    ```
+
+3. Create a Supabase storage
+
+4. Set storage permissions:
+   Set the following policy for `storage.objects`
+   <img width="2672" alt="Screenshot 2023-09-14 at 23 27 35" src="https://github.com/homanp/superagent/assets/2464556/8d6bde18-528e-4e0a-9840-aabe39ce5e68">
+
+    
+</details>
+
+<details>
+<summary>Setting up Github OAuth in UI</summary>
+
+1. Create a new Github OAuth app in your [Github account](https://github.com/settings/developers)
+
+2. Copy the `CLIENT_ID` and `CLIENT_SECRET` and paste them into the `.env` variables in the Superagent UI project.
+
+3. Set the following callback URL
+    ```sh
+    <YOUR_SUPABASE_URL>/auth/v1/callback
+    ```
+4. Navigate to your Supabase project you have created for Superagent UI and paste the `CLIENT_ID` and `CLIENT_SECRET`
+
+<img width="2672" alt="Screenshot 2023-09-15 at 09 08 52" src="https://github.com/homanp/superagent/assets/2464556/abd1e2fb-df90-413a-b674-766343683f6c">
+
+**NOTE**: You can enable any provider using the steps above.
+    
+</details>
+
+<details>
+<summary>Superagent API</summary>
+
+1. Navigate to `/libs/superagent`
+
+2. Rename the `env.example` to `.env`  and make sure you have all mandatory values set
+
+3. Create a virtual environment
+
+    ```sh
+    virtualenv venv
+    source venv/bin/activate
+    ```
+
+4. Install dependencies
+
+    ```sh
+    poetry install
+    ```
+
+5. Run database migrations
+
+    ```sh
+    poetry run prisma migrate dev
+    ```
+
+6. Start the server
+
+    ```sh
+    uvicorn app.main:app --reload
+    ```
+</details>
+
+<details>
+<summary>Superagent UI</summary>
+
+1. Navigate to `/libs/ui`
+
+2. Rename the `env.example` to `.env`  and make sure you have all mandatory values set
+
+3. Install the dependencies:
+
+    ```sh
+    npm install
+    ```
+4. Run migrations:
+    ```sh
+    supabase migrate up (local)
+    supabase db push (cloud)
+    ```
+
+4. Run the development server
+
+    ```sh
+    npm run dev
+
+    ```
+
+</details>
 
 ## 📋 Documentation:
 For full documentation, examples and setup guidelines, visit [docs.superagent.sh](https://docs.superagent.sh)
-
-
-## 🧐 Tutorials
-
-We post tutorials regularly on our [YouTube channel](https://www.youtube.com/channel/UCBeXnF8gh2EwAmOIwpmfjmA). Make sure to check them out ! 
 
 
 ## 🔗 SDKs
@@ -98,6 +218,4 @@ To see how to contribute, visit [Contribution guidelines](https://github.com/hom
 To help with contributions, you can search, navigate, and understand Superagent's source code using Onboard AI's free tool LearnThisRepo.
 [learnthisrepo.com/superagent](https://learnthisrepo.com/superagent)
 
-<a href="https://github.com/homanp/superagent/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=homanp/superagent" />
-</a>
+
