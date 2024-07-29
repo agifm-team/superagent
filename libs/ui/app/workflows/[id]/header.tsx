@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Workflow } from "@/models/models";
@@ -22,7 +22,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -35,46 +34,38 @@ import Avatar from "@/app/agents/[agentId]/avatar";
 interface HeaderProps {
   profile: Profile;
   workflow: Workflow;
-  email: any;
+  email: string;
 }
 
 const Header = ({ profile, workflow, email }: HeaderProps) => {
   const router = useRouter();
   const api = new Api(profile.api_key);
-  const [open, setOpen] = useState<boolean>(false);
-
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
-  const [avatar, setAvatar] = React.useState("");
-  const [selectedCategory, setCategory] = React.useState<string | null>(null);
+  const [avatar, setAvatar] = useState("");
+  const [selectedCategory, setCategory] = useState<string | null>(null);
   const [tags, setTags] = useState("");
-
   const [preferredBotName, setPreferredBotName] = useState("");
-  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(
-    null
-  );
+  const [isUsernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [availabilityCheckDone, setAvailabilityCheckDone] = useState(false);
   const [publishToMarketplace, setPublishToMarketplace] = useState(false);
-  const [isStreaming, setStreaming] = useState(false);
+  const [agentType, setAgentType] = useState("single-agent");
   const [publishSubAgents, setPublishSubAgents] = useState(false);
 
   const handleCheckUsernameAvailability = async () => {
+    if (!preferredBotName.trim()) return;
+
     setIsCheckingAvailability(true);
     setAvailabilityCheckDone(false);
-    setUsernameAvailable(null); // Reset availability status
+    setUsernameAvailable(null);
 
     try {
       const response = await fetch(
         `https://matrix.spaceship.im/_matrix/client/v3/register/available?username=${preferredBotName}`
       );
-
-      // Set availability based on response status
-      if (response.status === 200) {
-        setUsernameAvailable(true);
-      } else if (response.status === 400) {
-        setUsernameAvailable(false);
-      }
+      setUsernameAvailable(response.status === 200);
     } catch (error) {
       toast({
         description: "An error occurred while checking username availability.",
@@ -87,60 +78,52 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
 
   const handleDeploySubmit = async () => {
     const deployUrl = `https://bots.spaceship.im/add`;
-    const response = await fetch(deployUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        api_key: profile.api_key,
-        email_id: email,
-        bot_username: preferredBotName,
-        name: workflow.name,
-        description: workflow.description,
-        id: workflow.id,
-        tags: tags,
-        category: selectedCategory,
-        type: "WORKFLOW",
-        publish: publishToMarketplace,
-        profile: avatar,
-        streaming: isStreaming,
-        publish_all: publishSubAgents,
-      }),
-    });
+    try {
+      const response = await fetch(deployUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          api_key: profile.api_key,
+          email_id: email,
+          bot_username: preferredBotName,
+          name: workflow.name,
+          description: workflow.description,
+          id: workflow.id,
+          tags,
+          category: selectedCategory,
+          type: "WORKFLOW",
+          publish: publishToMarketplace,
+          profile: avatar,
+          streaming: agentType === "single-agent",
+          publish_all: publishSubAgents,
+        }),
+      });
 
-    // Check response and show toast notification accordingly
-    if (response.ok) {
-      toast({
-        description: "Bot deployed successfully!",
-      });
-    } else {
-      toast({
-        description: "Failed to deploy bot. Please try again.",
-      });
+      if (response.ok) {
+        toast({ description: "Bot deployed successfully!" });
+      } else {
+        throw new Error("Failed to deploy bot");
+      }
+    } catch (error) {
+      toast({ description: "Failed to deploy bot. Please try again." });
     }
   };
 
   const updateName = async (name: string) => {
-    await api.patchWorkflow(workflow.id, {
-      ...workflow,
-      name,
-    });
+    await api.patchWorkflow(workflow.id, { ...workflow, name });
     router.refresh();
   };
 
-  const handleUpload = React.useCallback(
-    async (url: any) => {
-      setAvatar(url)
-    }, []
-  )
+  const handleUpload = useCallback((url: string) => {
+    setAvatar(url);
+  }, []);
 
   return (
     <>
       <div className="flex space-x-2 px-6 text-sm text-muted-foreground">
-        <Link passHref href="/workflows">
-          <span>Workflows</span>
-        </Link>
+        <Link href="/workflows">Workflows</Link>
         <span>/</span>
         <Badge variant="secondary">
           <div className="flex items-center space-x-1">
@@ -153,21 +136,18 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
       <div className="flex items-center justify-between px-6">
         <div className="flex flex-col space-y-2">
           {useEditableField(workflow.name, updateName)}
-
           <span className="font-mono text-xs font-normal text-muted-foreground">
-            <span>
-              CREATED AT:{" "}
-              <span className="text-foreground">
-                {workflow.createdAt.toString()}
-              </span>
+            CREATED AT:{" "}
+            <span className="text-foreground">
+              {workflow.createdAt.toString()}
             </span>
           </span>
         </div>
         <div className="flex space-x-2">
           <Link
-            passHref
-            target="_blank"
             href="https://docs.superagent.sh/api-reference/api-reference/workflow/invoke"
+            target="_blank"
+            passHref
           >
             <Button className="space-x-2" size="sm" variant="outline">
               <TbCode size={20} />
@@ -218,158 +198,129 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
                   Enter your preferred bot name and deploy it.
                 </DialogDescription>
               </DialogHeader>
-              <center>
-                <Avatar
-                  accept=".jpg, .jpeg, .png, .gif"
-                  onSelect={handleUpload}
-                  imageUrl={avatar}
-                />
-              </center>
-              <div className="my-4">
-                <Input
-                  value={preferredBotName}
-                  onChange={(e) => setPreferredBotName(e.target.value)}
-                  placeholder="Preferred bot name"
-                  disabled={isCheckingAvailability}
-                />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleCheckUsernameAvailability}
-                  disabled={
-                    isCheckingAvailability || preferredBotName.trim() === ""
-                  }
-                  className="mt-2"
-                >
-                  {isCheckingAvailability ? "Checking..." : "Check Availability"}
-                </Button>
-                {availabilityCheckDone &&
-                  (isUsernameAvailable ? (
-                    <p className="text-green-600 mt-2">Username is available!</p>
-                  ) : (
-                    <p className="text-red-600 mt-2">
-                      Username is not available. Try another one.
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <Avatar
+                    accept=".jpg, .jpeg, .png, .gif"
+                    onSelect={handleUpload}
+                    imageUrl={avatar}
+                  />
+                </div>
+                <div>
+                  <Input
+                    value={preferredBotName}
+                    onChange={(e) => setPreferredBotName(e.target.value)}
+                    placeholder="Preferred bot name"
+                    disabled={isCheckingAvailability}
+                  />
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleCheckUsernameAvailability}
+                    disabled={isCheckingAvailability || !preferredBotName.trim()}
+                    className="mt-2"
+                  >
+                    {isCheckingAvailability ? "Checking..." : "Check Availability"}
+                  </Button>
+                  {availabilityCheckDone && (
+                    <p className={`mt-2 ${isUsernameAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                      {isUsernameAvailable
+                        ? "Username is available!"
+                        : "Username is not available. Try another one."}
                     </p>
-                  ))}
-              </div>
-              <div className="my-4">
-                <DialogHeader>
-                  <DialogTitle>Category</DialogTitle>
-                  <DialogDescription>
-                    Enter the category that will be associated with your bot.
-                  </DialogDescription>
-                </DialogHeader>
-                <select
-                  value={selectedCategory || ""}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                  onChange={(event) => {
-                    const value =
-                      typeof event.target.value === "string" &&
-                      event.target.value !== "null"
-                        ? event.target.value
-                        : null;
-                    setCategory(value);
-                  }}
-                >
-                  <option value={"null"}>Select category...</option>
-                  {[
-                    {
-                      value: "fun",
-                      label: "Fun",
-                    },
-                    {
-                      value: "agi",
-                      label: "AGI",
-                    },
-                    {
-                      value: "work",
-                      label: "Work",
-                    },
-                  ].map((tag) => (
-                    <option className="" value={tag.value}>
-                      {tag.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="my-4">
-                <DialogHeader>
-                  <DialogTitle>Tags</DialogTitle>
-                  <DialogDescription>
-                    Enter the tags that will be associated with your bot.
-                  </DialogDescription>
-                </DialogHeader>
-                <Input
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="Tags"
-                />
-              </div>
-              <div className="my-4">
-                <div className="flex items-center">
+                  )}
+                </div>
+                <div>
                   <DialogHeader>
-                    <DialogTitle>Publish to Marketplace</DialogTitle>
+                    <DialogTitle>Category</DialogTitle>
+                    <DialogDescription>
+                      Select the category that will be associated with your bot.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <select
+                    value={selectedCategory || ""}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    onChange={(e) => setCategory(e.target.value !== "null" ? e.target.value : null)}
+                  >
+                    <option value="null">Select category...</option>
+                    {[
+                      { value: "fun", label: "Fun" },
+                      { value: "agi", label: "AGI" },
+                      { value: "work", label: "Work" },
+                    ].map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <DialogHeader>
+                    <DialogTitle>Tags</DialogTitle>
+                    <DialogDescription>
+                      Enter the tags that will be associated with your bot.
+                    </DialogDescription>
                   </DialogHeader>
                   <Input
-                    type="checkbox"
-                    defaultChecked={publishToMarketplace}
-                    onChange={() =>
-                      setPublishToMarketplace(!publishToMarketplace)
-                    }
-                    className="ml-2"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    placeholder="Tags (comma-separated)"
                   />
                 </div>
-              </div>
-              <div className="my-4">
-                <div className="flex items-center">
-                  <DialogHeader>
-                    <DialogTitle>Publish Sub Agents</DialogTitle>
-                  </DialogHeader>
+                <div className="flex items-center space-x-2">
                   <Input
                     type="checkbox"
-                    defaultChecked={publishSubAgents}
+                    id="publishToMarketplace"
+                    checked={publishToMarketplace}
+                    onChange={() => setPublishToMarketplace(!publishToMarketplace)}
+                  />
+                  <label htmlFor="publishToMarketplace">Publish to Marketplace</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="checkbox"
+                    id="publishSubAgents"
+                    checked={publishSubAgents}
                     onChange={() => setPublishSubAgents(!publishSubAgents)}
-                    className="ml-2"
                   />
+                  <label htmlFor="publishSubAgents">Publish Sub Agents</label>
                 </div>
-              </div>
-              <div className="my-4">
-                <div className="flex items-center">
+                <div>
                   <DialogHeader>
                     <DialogTitle>Deploy as Agent Type</DialogTitle>
                   </DialogHeader>
-                  <div className="flex flex-col ml-2">
-                    <label className="flex items-center">
+                  <div className="space-y-2">
+                    <label className="flex items-center space-x-2">
                       <Input
                         type="radio"
                         name="agentType"
                         value="single-agent"
-                        checked={isStreaming}
-                        onChange={() => setStreaming(true)}
+                        checked={agentType === "single-agent"}
+                        onChange={() => setAgentType("single-agent")}
                       />
-                      <span className="ml-2">Single Agent - send all workflow responses as one agent</span>
+                      <span>Single Agent - send all workflow responses as one agent</span>
                     </label>
-                    <label className="flex items-center mt-2">
+                    <label className="flex items-center space-x-2">
                       <Input
                         type="radio"
                         name="agentType"
                         value="multi-agent"
-                        checked={!isStreaming}
-                        onChange={() => setStreaming(false)}
+                        checked={agentType === "multi-agent"}
+                        onChange={() => setAgentType("multi-agent")}
                       />
-                      <span className="ml-2">Multi-Agent - send all workflow responses as separate agents</span>
+                      <span>Multi-Agent - send all workflow responses as separate agents</span>
                     </label>
                   </div>
                 </div>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleDeploySubmit}
+                  disabled={!isUsernameAvailable}
+                >
+                  Deploy
+                </Button>
               </div>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleDeploySubmit}
-                disabled={!isUsernameAvailable}
-              >
-                Deploy
-              </Button>
             </DialogContent>
           </Dialog>
         </div>
