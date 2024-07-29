@@ -116,8 +116,10 @@ const Header = ({ profile, workflow, email }: HeaderProps) => {
     router.refresh();
   };
 
-  const handleUpload = useCallback((url: string) => {
+  const handleUpload = useCallback(async (url: string) => {
     setAvatar(url);
+    // If there's any asynchronous operation needed after setting the avatar, add it here
+    // For example: await someAsyncOperation();
   }, []);
 
   return (
