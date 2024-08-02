@@ -40,32 +40,12 @@ export const siteConfig = {
       icon: TbStack2,
     },
     {
-      title: "Agents",
-      href: "/agents",
-      icon: TbRobot,
-    },
-    {
-      title: "Logs",
-      href: "/logs",
-      icon: TbTerminal2,
-    },
-    {
       title: "Integrations",
       href: "/integrations",
       icon: TbPlug,
     },
   ],
   footerNav: [
-    {
-      title: "Discord",
-      href: "https://discord.com/invite/mhmJUTjW4b",
-      icon: TbBrandDiscord,
-    },
-    {
-      title: "Documentation",
-      href: "https://docs.superagent.sh",
-      icon: TbFileCode,
-    },
     {
       title: "Settings",
       href: "/settings",
@@ -87,11 +67,6 @@ export const siteConfig = {
       id: "appearance",
       title: "Appearance",
       href: "/settings/appearance",
-    },
-    {
-      id: "billing",
-      title: "Billing",
-      href: "/settings/billing",
     },
   ],
   defaultLLM: "GPT_3_5_TURBO_16K_0613",

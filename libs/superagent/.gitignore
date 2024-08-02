@@ -7,6 +7,7 @@ superenv/
 venv/
 /.vscode
 /.codesandbox
+.python-version
 
 ## GUI IGNORE
 

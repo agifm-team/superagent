@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useForm } from "react-hook-form"
@@ -27,6 +27,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast"
 import Logo from "@/components/logo"
+import { useAsync } from "react-use"
 
 const formSchema = z.object({
   email: z.string().email({
@@ -37,6 +38,17 @@ const formSchema = z.object({
 const supabase = getSupabase()
 
 export default function IndexPage() {
+  const router = useRouter()
+  const { value: showSidebar } = useAsync(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return false
+    }
+    router.push("/workflows")
+  })
+  const currentPageUrl = useRef<boolean>() // Initialize useRef
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const email = searchParams.get("email")
@@ -46,6 +58,13 @@ export default function IndexPage() {
       email: "",
     },
   })
+  const [messageIndex, setMessageIndex] = useState(0);
+  const messages = [
+    "Please wait, you will be signed in automatically",
+    "Setting up your experience...",
+    "Almost there, hang tight!"
+  ];
+
 
   async function onSubmit() {
     if (email) {
@@ -65,6 +84,13 @@ export default function IndexPage() {
       })
     }
   }
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
+    }, 6000);
+
+    return () => clearInterval(intervalId);
+  }, [messages.length]);
 
   async function handleGoogleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -78,12 +104,14 @@ export default function IndexPage() {
       toast({
         description: `Ooops! ${error?.message}`,
       })
-
       return
     }
   }
 
   useEffect(() => {
+    if (window.location.href.includes("http://localhost")) {
+      currentPageUrl.current = true 
+    }
     onSubmit()
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
@@ -105,7 +133,6 @@ export default function IndexPage() {
                 company: profile.company,
               })
             }
-            window.location.href = "/workflows"
           }
           fetchProfileAndIdentify()
         }
@@ -118,22 +145,34 @@ export default function IndexPage() {
   }, [supabase.auth])
 
   return (
-    <section className="container flex h-screen max-w-md flex-col justify-center space-y-8">
+    <section className="container flex h-screen max-w-md flex-col justify-center gap-10">
       <Logo width={50} height={50} />
       <div className="flex flex-col space-y-0">
-        <p className="text-lg font-bold">Logging in to Superagent</p>
-      </div>
+      {messages.map((message, index) => (
+          <p
+            key={index}
+            className={`absolute text-lg font-semibold transition-opacity duration-1000 ease-in-out ${messageIndex === index ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {message}
+          </p>
+        ))}
+    </div>
       <Spinner />
       <Separator />
-      <Button
-        variant="secondary"
-        size="sm"
-        className="space-x-4"
-        onClick={handleGoogleLogin}
-      >
-        <SiAuth0 size={20} />
-        <p>Sign in</p>
-      </Button>
+      {currentPageUrl.current && (
+        <div className="max-w-md flex-col justify-center">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="space-x-4"
+          onClick={handleGoogleLogin}
+        >
+          <SiAuth0 size={20} />
+          <p>Sign in</p>
+        </Button>
+        </div>
+      )}
+
       <Toaster />
     </section>
   )
